@@ -28,10 +28,10 @@ c.execute('''
 
 c.execute('''
 CREATE TABLE "Habitants"(
-    "date" DATE NOT NULL,
+    "année" INT NOT NULL,
     "idRégion" INT NOT NULL,
     "nbHabitant" INT NOT NULL,
-    PRIMARY KEY("date","idRégion"),
+    PRIMARY KEY("année","idRégion"),
     FOREIGN KEY("idRégion") REFERENCES "Région"("idRégion")
 );
 ''')
@@ -39,10 +39,10 @@ CREATE TABLE "Habitants"(
 
 c.execute('''
 CREATE TABLE "PIB"(
-    "date" DATE NOT NULL,
+    "année" INT NOT NULL,
     "idRégion" INT NOT NULL,
     "PIB" DECIMAL(8, 2) NOT NULL,
-    PRIMARY KEY("date","idRégion"),
+    PRIMARY KEY("année","idRégion"),
     FOREIGN KEY("idRégion") REFERENCES "Région"("idRégion")
 );
 ''')
@@ -50,10 +50,10 @@ CREATE TABLE "PIB"(
 
 c.execute('''
 CREATE TABLE "Empreinte_Carbone"(
-    "date" DATE NOT NULL,
+    "année" INT NOT NULL,
     "idActivité" INT NOT NULL,
     "produit" DECIMAL(8, 2) NOT NULL,
-    PRIMARY KEY("date","idActivité"),
+    PRIMARY KEY("année","idActivité"),
     FOREIGN KEY("idActivité") REFERENCES "Activité"("idActivité")
 );
 ''')
@@ -62,7 +62,7 @@ CREATE TABLE "Empreinte_Carbone"(
 c.execute('''
 CREATE TABLE "Activité"(
     "idActivité" INT NOT NULL,
-    "nomActivité" INT NOT NULL,
+    "nomActivité" NVARCHAR(255) NOT NULL,
     PRIMARY KEY("idActivité")
 );
 ''')
@@ -71,12 +71,12 @@ CREATE TABLE "Activité"(
 c.execute('''
 CREATE TABLE "Energie"(
     "idEnergies" INT NOT NULL,
-    "date" DATE NOT NULL,
+    "année" INT NOT NULL,
     "idActivité" INT NOT NULL,
     "nomEnergie" NVARCHAR(255) NOT NULL,
     "estPrimaire" INT NOT NULL,
     "consommation" DECIMAL(8, 2) NOT NULL,
-    PRIMARY KEY("idEnergies","date","idActivité"),
+    PRIMARY KEY("idEnergies","année","idActivité"),
     FOREIGN KEY("idActivité") REFERENCES "Activité"("idActivité")
 );
 ''')
@@ -84,11 +84,11 @@ CREATE TABLE "Energie"(
 
 c.execute('''
 CREATE TABLE "Effets"(
-    "date" DATE NOT NULL,
+    "année" INT NOT NULL,
     "idRégion" INT NOT NULL,
     "changementTempérature" FLOAT NOT NULL,
     "montéeEaux" FLOAT NOT NULL,
-    PRIMARY KEY("date","idRégion"),
+    PRIMARY KEY("année","idRégion"),
     FOREIGN KEY("idRégion") REFERENCES "Région"("idRégion")
 );
 ''')
