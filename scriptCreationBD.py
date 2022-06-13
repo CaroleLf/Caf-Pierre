@@ -1,6 +1,7 @@
 import sqlite3
+from os import path
 
-conn = sqlite3.connect("./sae_s204-s205/SAE2.04_2.05/CoffeePierre.db")
+conn = sqlite3.connect(path.dirname(__file__) + "/CoffeePierre.db")
 c = conn.cursor()
 
 c.execute('''DROP TABLE IF EXISTS Région''')
@@ -14,11 +15,11 @@ c.execute('''DROP TABLE IF EXISTS Effets''')
 c.execute('''
           CREATE TABLE "Région"(
     "idRégion" INT NOT NULL,
+    "idActivité" INT NULL,
     "nomRégion" NVARCHAR(255) NOT NULL,
     "estPays" INT NOT NULL,
     "idContinent" INT NULL,
-    "idActivité" INT NULL,
-    PRIMARY KEY("idRégion"),
+    PRIMARY KEY("idRégion","idActivité"),
     FOREIGN KEY("idContinent") REFERENCES "Région"("idRégion"),
     FOREIGN KEY("idActivité") REFERENCES "Activité"("idActivité")
 );
@@ -30,7 +31,7 @@ c.execute('''
 CREATE TABLE "Habitants"(
     "année" INT NOT NULL,
     "idRégion" INT NOT NULL,
-    "nbHabitant" INT NOT NULL,
+    "nbHabitant" INT NULL,
     PRIMARY KEY("année","idRégion"),
     FOREIGN KEY("idRégion") REFERENCES "Région"("idRégion")
 );
@@ -41,7 +42,7 @@ c.execute('''
 CREATE TABLE "PIB"(
     "année" INT NOT NULL,
     "idRégion" INT NOT NULL,
-    "PIB" DECIMAL(8, 2) NOT NULL,
+    "PIB" DECIMAL(8, 2) NULL,
     PRIMARY KEY("année","idRégion"),
     FOREIGN KEY("idRégion") REFERENCES "Région"("idRégion")
 );
@@ -52,7 +53,7 @@ c.execute('''
 CREATE TABLE "Empreinte_Carbone"(
     "année" INT NOT NULL,
     "idActivité" INT NOT NULL,
-    "produit" DECIMAL(8, 2) NOT NULL,
+    "produit" DECIMAL(8, 2) NULL,
     PRIMARY KEY("année","idActivité"),
     FOREIGN KEY("idActivité") REFERENCES "Activité"("idActivité")
 );
@@ -75,7 +76,7 @@ CREATE TABLE "Energie"(
     "idActivité" INT NOT NULL,
     "nomEnergie" NVARCHAR(255) NOT NULL,
     "estPrimaire" INT NOT NULL,
-    "consommation" DECIMAL(8, 2) NOT NULL,
+    "consommation" DECIMAL(8, 2) NULL,
     PRIMARY KEY("idEnergies","année","idActivité"),
     FOREIGN KEY("idActivité") REFERENCES "Activité"("idActivité")
 );
