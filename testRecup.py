@@ -32,4 +32,8 @@ consoPrim = pd.read_csv("/home/etd/recup/Conso_Energie_PrimaireAPI_EG.USE.PCAP.K
 print("Consommation d'énergie primaire par pays :")
 print(consoPrim)
 
-
+# Niveau de la mer
+#carte
+LevelMer = pd.read_csv("/home/etd/recup/CMIP6 - Sea level rise (SLR) Change meters - Long Term (2081-2100) SSP5-8.5 (rel. to 1995-2014) - Annual .csv")
+print("Niveau de la mer :")
+print(LevelMer)
