@@ -3,6 +3,10 @@ from sqlite3 import Row
 import pandas as pd
 import matplotlib.pyplot as plt
 import geopandas as gpd
+import netCDF4 as nc 
+import xarray as xr 
+from dash import dcc
+import plotly.graph_objs as go
 
 # source : https://donnees.banquemondiale.org/indicator/EN.ATM.CO2E.KT
 
@@ -17,6 +21,9 @@ empreinteCarboneTrente = pd.read_csv("/home/etd/recup/Empreinte_CarboneAPI_EN.AT
 print("Evolution empreinte carbone des pays voulu 30 ans:")
 print(empreinteCarboneTrente)
 
+fig = go.Figure(data=[go.Scatter(x=[1, 2, 3], y=[4, 1, 2])])
+
+dcc.Graph(figure=fig)
 
 
 # Empreinte carbone des pays voulu en 2018
@@ -33,7 +40,12 @@ print("Consommation d'énergie primaire par pays :")
 print(consoPrim)
 
 # Niveau de la mer
-#carte
-LevelMer = pd.read_csv("/home/etd/recup/CMIP6 - Sea level rise (SLR) Change meters - Long Term (2081-2100) SSP5-8.5 (rel. to 1995-2014) - Annual .csv")
+# a afficher sur une carte la prof qui a demandé
+LevelMer = pd.read_csv("/home/etd/recup/niveauMer.csv")
 print("Niveau de la mer :")
 print(LevelMer)
+
+# Activités avec le plus d'empreinte carbone 
+ActPlusCarbone = pd.read_csv("ActiviteAvecLePlusDempreinteCarbone.csv")
+print("Activités avec le plus d'empreinte carbone :")
+print(ActPlusCarbone)
