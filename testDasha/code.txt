@@ -1,0 +1,89 @@
+from dash import Dash, dcc, html, Input, Output, callback
+import matplotlib.pyplot as plt
+import pandas as pd
+app = Dash(__name__)
+
+empreinteCarbone = pd.read_csv("empreinte_carbone.csv", usecols=['Country Name','2018'])
+
+app.layout = html.Div([
+    html.H1('Diagramme empreinte carbone'),
+    dcc.Graph(
+        id='empreinte-carbone',
+        figure={
+            'data': [
+                {'x': empreinteCarbone['Country Name'], 'y': empreinteCarbone['2018'], 'type': 'bar', 'name': 'Empreinte carbone'},
+            ],
+            'layout': {
+                'title': 'Empreinte carbone des pays'
+            }
+        }
+    )
+])
+@callback(Output('empreinte-carbone', 'figure'), [Input('empreinte-carbone', 'clickData')])
+def update_figure(clickData):
+    if clickData is None:
+        return {
+            'data': [
+                {'x': empreinteCarbone['Country Name'], 'y': empreinteCarbone['2018'], 'type': 'bar', 'name': 'Empreinte carbone'},
+            ],
+            'layout': {
+                'title': 'Empreinte carbone des pays'
+            }
+        }
+    else:
+        country = clickData['points'][0]['x']
+        empreinteCarboneCountry = empreinteCarbone[empreinteCarbone['Country Name'] == country]
+        return {
+            'data': [
+                {'x': empreinteCarboneCountry['Country Name'], 'y': empreinteCarboneCountry['2018'], 'type': 'bar', 'name': 'Empreinte carbone'},
+            ],
+            'layout': {
+                'title': 'Empreinte carbone des pays'
+            }
+        }
+
+if __name__ == '__main__':
+    app.run_server(debug=True)
+
+
+////////////////////////////////
+////////////////////////////////
+///////////PIB-POP//////////////
+////////////////////////////////
+////////////////////////////////
+////////////////////////////////
+
+
+from dash import Dash, dcc, html
+from dash.dependencies import Input, Output
+import pandas as pd
+
+dfPibPays = pd.read_csv("pib.csv", usecols=['Country Name', '2020'])
+dfPopulationPays = pd.read_csv("pop_totale.csv", usecols=['Country Name', '2020'])
+
+app = Dash(__name__)
+
+app.layout = html.Div([
+    html.H1('CaffésPierre : Choice a country for see the GDP and the population'),
+    dcc.Dropdown(
+        id="country",
+        options=[
+                {"label": country, "value": country} for country in dfPibPays["Country Name"].unique()
+            ],
+    ),
+    html.Br(),
+    html.Div(id="report")
+])
+
+@app.callback(Output("report", "children"), [Input("country", "value")])
+def displayGDPandPopulation(country):
+    if country is not None:
+        return html.Div([
+            html.H3(country),
+            html.H4("GDP : " + str(dfPibPays.loc[dfPibPays["Country Name"] == country, "2020"].values[0]) + "$"),
+            html.H4("Population : " + str(dfPopulationPays.loc[dfPopulationPays["Country Name"] == country, "2020"].values[0]) + " people"),
+        ])
+
+
+if __name__ == '__main__':
+    app.run_server(debug=True)
