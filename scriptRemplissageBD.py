@@ -7,7 +7,7 @@ empreinteCarboneTrenteAnnee = pd.read_csv(path.dirname(__file__) + "/Empreinte_C
 empreinteCarbone2018 = pd.read_csv(path.dirname(__file__) + "/Empreinte_CarboneAPI_EN.ATM.GHGT.KT.CE_DS2_fr_csv_v2_4166498/API_EN.ATM.GHGT.KT.CE_DS2_fr_csv_v2_4166498.csv", usecols=['Country Name','Indicator Name','2018'])
 pibPays = pd.read_csv(path.dirname(__file__) + "/script-df/pib.csv")
 populationPays = pd.read_csv(path.dirname(__file__) + "/script-df/pop_totale.csv")
-paysContinent = pd.read_csv(path.dirname(__file__) + "/script-df/all.csv", usecols=['Country Name', 'region'])
+paysPaysEtContinent = pd.read_csv(path.dirname(__file__) + "/script-df/all.csv", usecols=['Country Name', 'region'])
 #NiveauMer = pd.read_csv(path.dirname(__file__) + "/CMIP6 - Sea level rise (SLR) Change meters - Long Term (2081-2100) SSP5-8.5 (rel. to 1995-2014) - Annual .csv")
 
 paysVoulus = ["France", "Denmark", "Cote d'Ivoire", "China", "India", "United States"]
@@ -20,7 +20,7 @@ c = conn.cursor()
 
 def calcPIBForAllRegions():
     # PIB / Pays --> CONTINENT
-    pibPaysWContinent = pd.merge(pibPays, paysContinent, on='Country Name')
+    pibPaysWContinent = pd.merge(pibPays, paysPaysEtContinent, on='Country Name')
     
     # PIB / CONTINENT
     pibTotalContinent = pibPaysWContinent.groupby('region').sum()
@@ -32,7 +32,7 @@ def calcPIBForAllRegions():
 
 def calcPopulationForAllRegions():
     # POP / Pays --> CONTINENT
-    popPaysWContinent = pd.merge(populationPays, paysContinent, on='Country Name')
+    popPaysWContinent = pd.merge(populationPays, paysPaysEtContinent, on='Country Name')
     
     # POPULATION / CONTINENT
     populationTotalContinent = popPaysWContinent.groupby('region').sum()
@@ -41,6 +41,19 @@ def calcPopulationForAllRegions():
     popPaysEtContinents = pd.concat([popPaysWContinent,populationTotalContinent])
     
     return popPaysEtContinents
+
+def getRegions():
+    toto = calcPopulationForAllRegions()
+    print("-------------------------------------------------------pays")
+    print(toto)
+    print("-------------------------------------------------------pays+continents")
+    toto = toto[['Country Name','region']]
+    print(toto)
+    print("-------------------------------------------------------")
+    for miam in toto.index:
+        print(miam+"1")
+    print("-------------------------------------------------------")
+    return 0
 
 def fillPIB():
     df = calcPIBForAllRegions()
@@ -125,10 +138,9 @@ def fillActivité():
 
 #fillPIB()
 #fillHabitants()
-fillActivité()
-conn.commit()
-
-
+#fillActivité()
+#conn.commit()
+getRegions()
 
 
 
