@@ -114,8 +114,8 @@ def fillRegions():
     df = getRegions()
     df = df.reset_index()
     df['Region Name'] = df['Region Name'].str.replace("""'""", """''""")
+    idAct=0
     for idReg, row in df.iterrows():
-        idAct=0
         if str(row['ContainedBy']) != 'nan':
             for i in range(NBACTIVITE):
                 i = df[df['Region Name'] == row['ContainedBy']]
@@ -138,20 +138,22 @@ def fillRegions():
     conn.commit()    
 
 def fillActivité():
-    idAct = 0
-    for activite in ActPlusCarbone.columns[1:]:
+    activites = ActPlusCarbone.columns.to_list()[1:]
+    c.execute("""SELECT idActivité FROM Région""")
+    res = c.fetchall()
+    while res != []:
+        row = res.pop()
         c.execute(f'''
-                insert into Activité (idActivité, nomActivité)
-                values
-                ('{idAct}','{activite}')
-                ''')
-        idAct+=1
+                    insert into Activité (idActivité, nomActivité)
+                    values
+                    ('{row[0]}','{activites[row[0]%len(activites)]}')
+                    ''')
     conn.commit()
 
 fillPIB()
 fillHabitants()
-fillActivité()
 fillRegions()
+fillActivité()
 
 conn.commit()
 
