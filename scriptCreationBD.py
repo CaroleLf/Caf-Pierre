@@ -18,7 +18,7 @@ c.execute('''
     "idActivité" INT NULL,
     "nomRégion" NVARCHAR(255) NOT NULL,
     "estPays" INT NOT NULL,
-    "idContinent" INT NULL,
+    "idContinent" INT,
     PRIMARY KEY("idRégion","idActivité"),
     FOREIGN KEY("idContinent") REFERENCES "Région"("idRégion"),
     FOREIGN KEY("idActivité") REFERENCES "Activité"("idActivité")
