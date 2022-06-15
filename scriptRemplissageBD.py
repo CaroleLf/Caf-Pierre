@@ -3,8 +3,8 @@ from tkinter import S
 import pandas as pd
 from os import path
 
-empreinteCarboneTrenteAnnee = pd.read_csv(path.dirname(__file__) + "/Empreinte_CarboneAPI_EN.ATM.GHGT.KT.CE_DS2_fr_csv_v2_4166498/API_EN.ATM.GHGT.KT.CE_DS2_fr_csv_v2_4166498.csv")
-empreinteCarbone2018 = pd.read_csv(path.dirname(__file__) + "/Empreinte_CarboneAPI_EN.ATM.GHGT.KT.CE_DS2_fr_csv_v2_4166498/API_EN.ATM.GHGT.KT.CE_DS2_fr_csv_v2_4166498.csv", usecols=['Country Name','Indicator Name','2018'])
+empreinteCarbone = pd.read_csv(path.dirname(__file__) + "/testDasha/Empreinte_CarboneAPI_EN.ATM.GHGT.KT.CE_DS2_fr_csv_v2_4166498/API_EN.ATM.GHGT.KT.CE_DS2_fr_csv_v2_4166498.csv")
+empreinteCarbone2018 = pd.read_csv(path.dirname(__file__) + "/testDasha/Empreinte_CarboneAPI_EN.ATM.GHGT.KT.CE_DS2_fr_csv_v2_4166498/API_EN.ATM.GHGT.KT.CE_DS2_fr_csv_v2_4166498.csv", usecols=['Country Name','Indicator Name','2018'])
 pibPays = pd.read_csv(path.dirname(__file__) + "/script-df/pib.csv")
 populationPays = pd.read_csv(path.dirname(__file__) + "/script-df/pop_totale.csv")
 paysPaysEtContinent = pd.read_csv(path.dirname(__file__) + "/script-df/all.csv", usecols=['Country Name', 'region'])
@@ -148,6 +148,30 @@ def fillActivité():
                     values
                     ('{row[0]}','{activites[row[0]%len(activites)]}')
                     ''')
+    conn.commit()
+
+def fillEmpreinteCarbone():
+    """
+    Fonction de remplissage de la table Empreinte_Carbone
+    """
+    for col_name, col in empreinteCarbone.transpose().iterrows():
+        dates = [str(year) for year in range(1959,2022)]
+        if col_name in dates:
+            i = 0
+            for val in col.values:
+                if val == float('nan'):
+                    c.execute(f'''  
+                        insert into Habitants ('année', 'idActivité')
+                        values
+                        ('{col_name}','{"-------------------------------"}')
+                        ''')
+                else:
+                    c.execute(f'''
+                        insert into Habitants ('année', 'idActivité', 'produit')
+                        values
+                        ('{col_name}','{"-------------------------------"}','{val}')
+                        ''')
+                i+=1
     conn.commit()
 
 fillPIB()
