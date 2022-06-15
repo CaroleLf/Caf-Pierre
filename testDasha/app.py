@@ -2,12 +2,16 @@ from gc import callbacks
 from dash import Dash, dcc, html, Input, Output, callback
 import pandas as pd
 import matplotlib.pyplot as plt
+import plotly.express as px
+import plotly.graph_objs as go
 
 #############################################################################################################################
 
 dfPibPays = pd.read_csv("pib.csv", usecols=['Country Name', '2020'])
 dfPopulationPays = pd.read_csv("pop_totale.csv", usecols=['Country Name', '2020'])
 dfEmpreinteCarbone = pd.read_csv("empreinte_carbone.csv", usecols=['Country Name', '2014'])
+dfEmpreinteCarone30years = pd.read_csv("empreinte_carbone.csv", usecols=['Country Name', "1984","1985","1986","1987","1988","1989","1990","1991","1992","1993","1994","1995","1996","1997","1998","1999","2000","2001","2002","2003","2004","2005","2006","2007","2008","2009","2010","2011","2012","2013","2014"])
+
 #############################################################################################################################
 
 dateVoulue = ["1986-01-01 00:00:00",
@@ -227,7 +231,7 @@ carbon_footprint_layout = html.Div([
                 {'x': dfUnitedStates['Country Name'], 'y': dfUnitedStates['2014'], 'type': 'bar', 'name': 'Carbon footprint of United States at 2014'},
             ],
         }
-    )
+    ),
 
 ], style = {'text-align': 'center'})
 @callback(Output('report-carbon-footprint', 'children'), [Input('carbon-footprint-dropdown', 'value')])
@@ -240,7 +244,20 @@ def displayCarbonFootprint(value):
             html.H4("Carbon footprint : " + str(dfEmpreinteCarbone.loc[dfEmpreinteCarbone["Country Name"] == value, "2014"].values[0]) + " kg CO2e"),
         ])
 
-
+#################################
+# page carbon-footprint 30 years#
+#################################
+dfFrance = selectLineOfCountryInDf(dfEmpreinteCarone30years, "France")
+fig = go.Figure(data=[go.Scatter(x=dfFrance['Country Name'], y=dfFrance['2014'], name='Carbon footprint of France at 2014')])
+carbon_footprint_30years_layout = html.Div([
+    dcc.Link('Go back to Country', href='/country'),
+    html.Br(),
+    html.H1('Choice a country for see the evolutions of carbon'),
+    html.Br(),
+    dcc.Graph(
+        figure = fig
+    )
+], style = {'text-align': 'center'})
 ############
 # page map #
 ############
@@ -274,6 +291,8 @@ def display_page(pathname):
         return gdp_pop_layout
     elif pathname == '/carbon-footprint':
         return carbon_footprint_layout
+    elif pathname == '/carbon-footprint-30':
+        return carbon_footprint_30years_layout
     else:
         return index_page
     # You could also return a 404 "URL not found" page here
