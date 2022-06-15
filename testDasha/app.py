@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 dfPibPays = pd.read_csv("pib.csv", usecols=['Country Name', '2020'])
 dfPopulationPays = pd.read_csv("pop_totale.csv", usecols=['Country Name', '2020'])
-
+dfEmpreinteCarbone = pd.read_csv("empreinte_carbone.csv", usecols=['Country Name', '2014'])
 #############################################################################################################################
 
 dateVoulue = ["1986-01-01 00:00:00",
@@ -163,16 +163,13 @@ def retGraphPrimaryEnergy(value):
     )
             
 
-#'The primary energy consumption of {} is {}'.format(country, dfPrimaryEnergy.loc[dfPrimaryEnergy['Country Name'] == country, '2014'].values[0])
-
-
 ################
 # page gdp-pop #
 ################
 gdp_pop_layout = html.Div([
     dcc.Link('Go back to Country', href='/country'),
     html.Br(),
-    html.H1('Choice a country for see the GDP and the population'),
+    html.H1('Choice a country for see the GDP and the population at 2020'),
     dcc.Dropdown(
         id="gdp-pop-dropdown",
         options=[
@@ -191,6 +188,56 @@ def displayGDPandPopulation(country):
             html.H3(country),
             html.H4("GDP : " + str(dfPibPays.loc[dfPibPays["Country Name"] == country, "2020"].values[0]) + "$"),
             html.H4("Population : " + str(dfPopulationPays.loc[dfPopulationPays["Country Name"] == country, "2020"].values[0]) + " people"),
+        ])
+
+
+#########################
+# page carbon-footprint #
+#########################
+def selectLineOfCountryInDf(df, country):
+    return df.loc[df["Country Name"] == country]
+dfFrance = selectLineOfCountryInDf(dfEmpreinteCarbone, "France")
+dfDenmark = selectLineOfCountryInDf(dfEmpreinteCarbone, "Danmark")
+dfCoteIvoire = selectLineOfCountryInDf(dfEmpreinteCarbone, "Côte d'Ivoire")
+dfChina = selectLineOfCountryInDf(dfEmpreinteCarbone, "Chine")
+dfIndia = selectLineOfCountryInDf(dfEmpreinteCarbone, "Inde")
+dfUnitedStates = selectLineOfCountryInDf(dfEmpreinteCarbone, "États-Unis")
+carbon_footprint_layout = html.Div([
+    dcc.Link('Go back to Country', href='/country'),
+    html.Br(),
+    html.H1('Choice a country for see the carbon footprint at 2014'),
+    dcc.Dropdown(
+        id="carbon-footprint-dropdown",
+        options=[
+                {"label": country, "value": country} for country in dfEmpreinteCarbone["Country Name"].unique()
+            ],
+    ),
+    html.Br(),
+    html.Div(id="report-carbon-footprint"),
+    html.Br(),
+    html.H1('A diagram of the countries where you are established :'),
+    dcc.Graph(
+        figure = {
+            'data': [
+                {'x': dfFrance['Country Name'], 'y': dfFrance['2014'], 'type': 'bar', 'name': 'Carbon footprint of France at 2014'},
+                {'x': dfDenmark['Country Name'], 'y': dfDenmark['2014'], 'type': 'bar', 'name': 'Carbon footprint of Denmark at 2014'},
+                {'x': dfCoteIvoire['Country Name'], 'y': dfCoteIvoire['2014'], 'type': 'bar', 'name': 'Carbon footprint of Cote d\'Ivoire at 2014'},
+                {'x': dfChina['Country Name'], 'y': dfChina['2014'], 'type': 'bar', 'name': 'Carbon footprint of China at 2014'},
+                {'x': dfIndia['Country Name'], 'y': dfIndia['2014'], 'type': 'bar', 'name': 'Carbon footprint of India at 2014'},
+                {'x': dfUnitedStates['Country Name'], 'y': dfUnitedStates['2014'], 'type': 'bar', 'name': 'Carbon footprint of United States at 2014'},
+            ],
+        }
+    )
+
+], style = {'text-align': 'center'})
+@callback(Output('report-carbon-footprint', 'children'), [Input('carbon-footprint-dropdown', 'value')])
+def displayCarbonFootprint(value):
+    if value is None:
+        return 'Please select a country'
+    else:
+        return html.Div([
+            html.H3(value),
+            html.H4("Carbon footprint : " + str(dfEmpreinteCarbone.loc[dfEmpreinteCarbone["Country Name"] == value, "2014"].values[0]) + " kg CO2e"),
         ])
 
 
@@ -225,6 +272,8 @@ def display_page(pathname):
         return primary_energy_layout
     elif pathname == '/gdp-pop':
         return gdp_pop_layout
+    elif pathname == '/carbon-footprint':
+        return carbon_footprint_layout
     else:
         return index_page
     # You could also return a 404 "URL not found" page here
