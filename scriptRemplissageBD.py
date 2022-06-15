@@ -8,10 +8,11 @@ empreinteCarbone2018 = pd.read_csv(path.dirname(__file__) + "/Empreinte_CarboneA
 pibPays = pd.read_csv(path.dirname(__file__) + "/script-df/pib.csv")
 populationPays = pd.read_csv(path.dirname(__file__) + "/script-df/pop_totale.csv")
 paysPaysEtContinent = pd.read_csv(path.dirname(__file__) + "/script-df/all.csv", usecols=['Country Name', 'region'])
+ActPlusCarbone = pd.read_csv(path.dirname(__file__) + "/ActiviteAvecLePlusDempreinteCarbone.csv")
+NBACTIVITE = ActPlusCarbone.shape[1]-1
 #NiveauMer = pd.read_csv(path.dirname(__file__) + "/CMIP6 - Sea level rise (SLR) Change meters - Long Term (2081-2100) SSP5-8.5 (rel. to 1995-2014) - Annual .csv")
 
 paysVoulus = ["France", "Denmark", "Cote d'Ivoire", "China", "India", "United States"]
-activités = ["Industrie","Transport","Residentiel","Commerce et services publiques","Agriculture","Autres"]
 
 conn = sqlite3.connect(path.dirname(__file__) + "/CoffeePierre.db")
 c = conn.cursor()
@@ -77,6 +78,7 @@ def fillPIB():
                         ('{col_name}','{i}','{val}')
                         ''')
                 i+=1
+    conn.commit()
 
 def fillHabitants():
     """
@@ -103,6 +105,7 @@ def fillHabitants():
                         ('{col_name}','{i}','{val}')
                         ''')
                 i+=1
+    conn.commit()
 
 def fillRegions():
     """
@@ -114,7 +117,7 @@ def fillRegions():
     for idReg, row in df.iterrows():
         idAct=0
         if str(row['ContainedBy']) != 'nan':
-            for i in range(len(activités)):
+            for i in range(NBACTIVITE):
                 i = df[df['Region Name'] == row['ContainedBy']]
                 i = i.values.tolist()[0][0]
                 
@@ -125,7 +128,7 @@ def fillRegions():
                 ''')
                 idAct+=1
         else:
-            for i in range(len(activités)):
+            for i in range(NBACTIVITE):
                 c.execute(f'''
                 insert into Région (idRégion, nomRégion, estPays,idActivité)
                 values
@@ -135,17 +138,19 @@ def fillRegions():
     conn.commit()    
 
 def fillActivité():
-    secteursActivités = ["Industrie","Transport","Residentiel","Commerce et service publique","Agriculture"]
-    for i in range(len(secteursActivités)):
+    idAct = 0
+    for activite in ActPlusCarbone.columns[1:]:
         c.execute(f'''
-            insert into Activité ('idActivité', 'nomActivité')
-            values
-            ('{i}','{secteursActivités[i]}')
-            ''')
+                insert into Activité (idActivité, nomActivité)
+                values
+                ('{idAct}','{activite}')
+                ''')
+        idAct+=1
+    conn.commit()
 
 fillPIB()
 fillHabitants()
-#fillActivité()
+fillActivité()
 fillRegions()
 
 conn.commit()
@@ -177,15 +182,4 @@ insert into Effets (année, idRégion, changementTempérature, montéeEaux)
     values
     ({"PLACEHOLDER"},{"PLACEHOLDER"},{"PLACEHOLDER"},{"PLACEHOLDER"})
 ''')
-
-c.execute(f'''
-insert into Région (idRégion, nomRégion, estPays, idContinent, idActivité)
-    values
-    ({"PLACEHOLDER"},{"PLACEHOLDER"},{"PLACEHOLDER"},{"PLACEHOLDER"})
-''')
-
 """
-
-c.execute('''SELECT * FROM Activité''')
-df = pd.DataFrame(c.fetchall())
-print(df)
