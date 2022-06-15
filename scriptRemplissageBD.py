@@ -156,13 +156,6 @@ fillRegions()
 conn.commit()
 
 """
-for i in range(10):
-    c.execute(f'''
-    INSERT INTO Activité (idActivité,nomActivité)
-        VALUES
-        ({i}, '{"act" + str(i)}')
-    ''')
-
 for y in range(1970,2022):
     for a in range(10):
         c.execute(f'''
