@@ -11,7 +11,7 @@ paysPaysEtContinent = pd.read_csv(path.dirname(__file__) + "/script-df/all.csv",
 #NiveauMer = pd.read_csv(path.dirname(__file__) + "/CMIP6 - Sea level rise (SLR) Change meters - Long Term (2081-2100) SSP5-8.5 (rel. to 1995-2014) - Annual .csv")
 
 paysVoulus = ["France", "Denmark", "Cote d'Ivoire", "China", "India", "United States"]
-
+activités = ["Industrie","Transport","Residentiel","Commerce et services publiques","Agriculture","Autres"]
 
 conn = sqlite3.connect(path.dirname(__file__) + "/CoffeePierre.db")
 c = conn.cursor()
@@ -43,19 +43,19 @@ def calcPopulationForAllRegions():
     return popPaysEtContinents
 
 def getRegions():
-    toto = calcPopulationForAllRegions()
-    print("-------------------------------------------------------pays")
-    print(toto)
-    print("-------------------------------------------------------pays+continents")
-    toto = toto[['Country Name','region']]
-    print(toto)
-    print("-------------------------------------------------------")
-    for miam in toto.index:
-        print(miam+"1")
-    print("-------------------------------------------------------")
-    return 0
+    df = calcPopulationForAllRegions()
+    df = df[['Country Name','region']]
+    df.rename(columns={'Country Name':'Region Name', 'region':'ContainedBy'}, inplace = True)
+    for id in df.index:
+        if not str(id).isnumeric():
+            df.at[id,'Region Name'] = id
+    df.set_index(pd.Index([i for i in range(len(df.index))]), inplace = True)
+    return df
 
 def fillPIB():
+    """
+    Fonction de remplissage de la table PIB
+    """
     df = calcPIBForAllRegions()
     df = df.reset_index()
     
@@ -79,6 +79,9 @@ def fillPIB():
                 i+=1
 
 def fillHabitants():
+    """
+    Fonction de remplissage de la table Habitants
+    """
     df = calcPopulationForAllRegions()
     df = df.reset_index()
     
@@ -102,30 +105,34 @@ def fillHabitants():
                 i+=1
 
 def fillRegions():
-    df = calcPopulationForAllRegions()
+    """
+    Fonction de remplissage de la table Région
+    """
+    df = getRegions()
     df = df.reset_index()
-    
-    for col_name, col in df.transpose().iterrows():
-        dates = [str(year) for year in range(1959,2022)]
-        if col_name in dates:
-            i = 0
-            print(col)
-            for val in col.values:
-                """
-                if val == float('nan'):
-                    c.execute(f'''
-                        insert into Habitants ('année', 'idRégion')
-                        values
-                        ('{col_name}','{i}')
-                        ''')
-                else:
-                    c.execute(f'''
-                        insert into Habitants ('année', 'idRégion', 'nbHabitant')
-                        values
-                        ('{col_name}','{i}','{val}')
-                        ''')
-                """
-                i+=1
+    df['Region Name'] = df['Region Name'].str.replace("""'""", """''""")
+    for idReg, row in df.iterrows():
+        idAct=0
+        if str(row['ContainedBy']) != 'nan':
+            for i in range(len(activités)):
+                i = df[df['Region Name'] == row['ContainedBy']]
+                i = i.values.tolist()[0][0]
+                
+                c.execute(f'''
+                insert into Région (idRégion, nomRégion, estPays,idContinent,idActivité)
+                values
+                ('{idReg}','{row['Region Name']}','1','{i}','{idAct}')
+                ''')
+                idAct+=1
+        else:
+            for i in range(len(activités)):
+                c.execute(f'''
+                insert into Région (idRégion, nomRégion, estPays,idActivité)
+                values
+                ('{idReg}','{row['Region Name']}','0','{idAct}')
+                ''')
+                idAct+=1
+    conn.commit()    
 
 def fillActivité():
     secteursActivités = ["Industrie","Transport","Residentiel","Commerce et service publique","Agriculture"]
@@ -136,13 +143,12 @@ def fillActivité():
             ('{i}','{secteursActivités[i]}')
             ''')
 
-#fillPIB()
-#fillHabitants()
+fillPIB()
+fillHabitants()
 #fillActivité()
-#conn.commit()
-getRegions()
+fillRegions()
 
-
+conn.commit()
 
 """
 for i in range(10):
