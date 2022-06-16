@@ -5,17 +5,18 @@ import matplotlib.pyplot as plt
 import plotly.express as px
 import plotly.graph_objs as go
 import geopandas as gpd
+import csv
 
 #############################################################################################################################
 
-dfPibPays = pd.read_csv("/home/etd/projet/SAE2.04_2.05_equipe4/script-df/pib.csv", usecols=['Country Name', '2020'])
-dfPopulationPays = pd.read_csv("/home/etd/projet/SAE2.04_2.05_equipe4/script-df/pop_totale.csv", usecols=['Country Name', '2020'])
-dfEmpreinteCarbone = pd.read_csv("/home/etd/projet/SAE2.04_2.05_equipe4/testDasha/empreinte_carbone.csv", usecols=['Country Name', '2014'])
-dfEmpreinteCarone30years = pd.read_csv("/home/etd/projet/SAE2.04_2.05_equipe4/testDasha/empreinte_carbone.csv", usecols=['Country Name', "1984","1985","1986","1987","1988","1989","1990","1991","1992","1993","1994","1995","1996","1997","1998","1999","2000","2001","2002","2003","2004","2005","2006","2007","2008","2009","2010","2011","2012","2013","2014"])
-dfSeaLevel = pd.read_csv("/home/etd/projet/SAE2.04_2.05_equipe4/testDasha/NiveauMerUpdate.csv")
-dfTemperatureForecast = pd.read_csv("/home/etd/projet/SAE2.04_2.05_equipe4/testDasha/AllTemperatureMean2041-2060Pays.csv")
-dfAverageTemperature = pd.read_csv("/home/etd/projet/SAE2.04_2.05_equipe4/testDasha/AverageTemperature1941-1960.csv")
-counties = gpd.read_file("/home/etd/projet/SAE2.04_2.05_equipe4/custom.geo.json")
+dfPibPays = pd.read_csv("pib.csv", usecols=['Country Name', '2020'])
+dfPopulationPays = pd.read_csv("pop_totale.csv", usecols=['Country Name', '2020'])
+dfEmpreinteCarbone = pd.read_csv("empreinte_carbone.csv", usecols=['Country Name', '2014'])
+dfEmpreinteCarone30years = pd.read_csv("empreinte_carbone.csv")
+dfSeaLevel = pd.read_csv("NiveauMerUpdate.csv")
+dfTemperatureForecast = pd.read_csv("AllTemperatureMean2041-2060Pays.csv")
+dfAverageTemperature = pd.read_csv("AverageTemperature1941-1960.csv")
+counties = gpd.read_file("custom.geo.json")
 
 #############################################################################################################################
 
@@ -52,26 +53,6 @@ dateVoulue = ["1986-01-01 00:00:00",
 "2016-01-01 00:00:00"
 ]
 
-def setDateVoulue(df):
-    return df[df["Unnamed: 0"].isin(dateVoulue)]
-
-penergyfrance = pd.read_csv("testDasha/primary_energy/primary_energy_france.csv", sep=';')
-penergyfrance = setDateVoulue(penergyfrance)
-
-penergychina = pd.read_csv("testDasha/primary_energy/primary_energy_china.csv", sep=';')
-penergychina = setDateVoulue(penergychina)
-
-penergycoteivoire = pd.read_csv("testDasha/primary_energy/primary_energy_coteivoire.csv", sep=';')
-penergycoteivoire = setDateVoulue(penergycoteivoire)
-
-penergyindia = pd.read_csv("testDasha/primary_energy/primary_energy_india.csv", sep=';')
-penergyindia = setDateVoulue(penergyindia)
-
-penergydenmark = pd.read_csv("testDasha/primary_energy/primary_energy_denmark.csv", sep=';')
-penergydenmark = setDateVoulue(penergydenmark)
-
-penergyunitedstates = pd.read_csv("testDasha/primary_energy/primary_energy_unitedstates.csv", sep=';')
-penergyunitedstates = setDateVoulue(penergyunitedstates)
 
 #############################################################################################################################
 
@@ -105,7 +86,10 @@ index_page = html.Div([
 country_layout = html.Div([
     html.H1('Country'),
     html.Br(),
-    dcc.Link('Display the primary energy consumption of a country', href='/primary-energy'),
+    dcc.Link('Display the primary energy consumption by sector of a country', href='/primary-energy'),
+    html.Br(),
+    html.Br(),
+    dcc.Link('Display the ges by sector of a country', href='/ges'),
     html.Br(),
     html.Br(),
     dcc.Link('Display the GDP, population and GDP per capita of a country', href='/gdp-pop'),
@@ -127,20 +111,40 @@ country_layout = html.Div([
 # page primary-energy #
 #######################
 
+def setDateVoulue(df):
+    return df[df["Unnamed: 0"].isin(dateVoulue)]
 
+penergyfrance = pd.read_csv("primary_energy/primary_energy_france.csv", sep=';')
+penergyfrance = setDateVoulue(penergyfrance)
+
+penergychina = pd.read_csv("primary_energy/primary_energy_china.csv", sep=';')
+penergychina = setDateVoulue(penergychina)
+
+penergycoteivoire = pd.read_csv("primary_energy/primary_energy_coteivoire.csv", sep=';')
+penergycoteivoire = setDateVoulue(penergycoteivoire)
+
+penergyindia = pd.read_csv("primary_energy/primary_energy_india.csv", sep=';')
+penergyindia = setDateVoulue(penergyindia)
+
+penergydenmark = pd.read_csv("primary_energy/primary_energy_denmark.csv", sep=';')
+penergydenmark = setDateVoulue(penergydenmark)
+
+penergyunitedstates = pd.read_csv("primary_energy/primary_energy_unitedstates.csv", sep=';')
+penergyunitedstates = setDateVoulue(penergyunitedstates)
+
+penergygermany = pd.read_csv("primary_energy/primary_energy_germany.csv", sep=';')
+penergygermany = setDateVoulue(penergygermany)
 
 primary_energy_layout = html.Div([
     dcc.Link('Go back to Country', href='/country'),
     html.Br(),
     html.H1('Choice a country for see the primary energy consumption'),
     html.Br(),
-    dcc.Dropdown(["France", "Denmark", "Cote d'Ivoire", "China", "India", "United States"], id='country-dropdown'),
-    html.Br(),
-    html.Div(id='country-choice'),
+    dcc.Dropdown(["France", "Denmark", "Cote d'Ivoire", "China", "India", "United States", "Germany"], id='country-dropdown'),
     html.Br(),
     html.Div(id="report-primary-energy"),
 ], style = {'text-align': 'center'})
-@callback(Output('country-choice', 'children'), Input('country-dropdown', 'value'))
+@callback(Output('report-primary-energy', 'children'), Input('country-dropdown', 'value'))
 def retGraphPrimaryEnergy(value):
     if value == "France":
         df = penergyfrance
@@ -154,6 +158,8 @@ def retGraphPrimaryEnergy(value):
         df = penergyindia
     if value == "United States":
         df = penergyunitedstates
+    if value == "Germany":
+        df = penergygermany
     return dcc.Graph(
         figure = {
             'data': [
@@ -176,7 +182,73 @@ def retGraphPrimaryEnergy(value):
             }
         }
     )
-            
+
+############
+# page ges #
+############
+ghousegas_france = pd.read_csv("greenhouse_gas/greenhouse_gas_france.csv", sep=';')
+ghousegas_france = setDateVoulue(ghousegas_france)
+
+ghousegas_coteivoire = pd.read_csv("greenhouse_gas/greenhouse_gas_coteivoire.csv", sep=';')
+ghousegas_coteivoire = setDateVoulue(ghousegas_coteivoire)
+
+ghousegas_denmark = pd.read_csv("greenhouse_gas/greenhouse_gas_denmark.csv", sep=';')
+ghousegas_denmark = setDateVoulue(ghousegas_denmark)
+
+ghousegas_china = pd.read_csv("greenhouse_gas/greenhouse_gas_china.csv", sep=';')
+ghousegas_china = setDateVoulue(ghousegas_china)
+
+ghousegas_inde = pd.read_csv("greenhouse_gas/greenhouse_gas_inde.csv", sep=';')
+ghousegas_inde = setDateVoulue(ghousegas_inde)
+
+ghousegas_unitedstates = pd.read_csv("greenhouse_gas/greenhouse_gas_unitedstate.csv", sep=';')
+ghousegas_unitedstates = setDateVoulue(ghousegas_unitedstates)
+
+ghousegas_germany = pd.read_csv("greenhouse_gas/greenhouse_gas_germany.csv", sep=';')
+ghousegas_germany = setDateVoulue(ghousegas_germany)
+
+ges_layout = html.Div([
+    dcc.Link('Go back to Country', href='/country'),
+    html.Br(),
+    html.H1('Choice a country for see the greenhouse gas consumption'),
+    html.Br(),
+    dcc.Dropdown(["France", "Cote d'Ivoire", "Denmark", "China", "India", "United States", "Germany"], id='country-dropdown'),
+    html.Br(),
+    html.Div(id="report-ghouse-gas"),
+], style = {'text-align': 'center'})
+@callback(Output('report-ghouse-gas', 'children'), Input('country-dropdown', 'value'))
+def retGraphGreenhouseGas(value):
+    if value == "France":
+        df = ghousegas_france
+    if value == "Cote d'Ivoire":
+        df = ghousegas_coteivoire
+    if value == "Denmark":
+        df = ghousegas_denmark
+    if value == "China":
+        df = ghousegas_china
+    if value == "India":
+        df = ghousegas_inde
+    if value == "United States":
+        df = ghousegas_unitedstates
+    if value == "Germany":
+        df = ghousegas_germany
+
+    return dcc.Graph(
+        figure = {
+            'data': [
+                {'x': df['Unnamed: 0'], 'y': df['Energy'], 'type': 'line', 'name': 'Energy'},
+                {'x': df['Unnamed: 0'], 'y': df['Agriculture'], 'type': 'line', 'name': 'Agriculture'},
+                {'x': df['Unnamed: 0'], 'y': df['Industry and Construction'], 'type': 'line', 'name': 'Industry and Construction'},
+                {'x': df['Unnamed: 0'], 'y': df['Waste'], 'type': 'line', 'name': 'Waste'},
+                {'x': df['Unnamed: 0'], 'y': df['Other Sectors'], 'type': 'line', 'name': 'Other Sectors'},
+            ],
+            'layout': {
+                'title': 'Greenhouse gas consumption of the country',
+                'xaxis': {'title': 'Date / 30 years'},
+                'yaxis': {'title': 'Mtoe'},
+            }
+        }
+    )
 
 ################
 # page gdp-pop #
@@ -217,6 +289,7 @@ dfCoteIvoire = selectLineOfCountryInDf(dfEmpreinteCarbone, "Côte d'Ivoire")
 dfChina = selectLineOfCountryInDf(dfEmpreinteCarbone, "Chine")
 dfIndia = selectLineOfCountryInDf(dfEmpreinteCarbone, "Inde")
 dfUnitedStates = selectLineOfCountryInDf(dfEmpreinteCarbone, "États-Unis")
+dfGermany = selectLineOfCountryInDf(dfEmpreinteCarbone, "Allemagne")
 carbon_footprint_layout = html.Div([
     dcc.Link('Go back to Country', href='/country'),
     html.Br(),
@@ -240,6 +313,7 @@ carbon_footprint_layout = html.Div([
                 {'x': dfChina['Country Name'], 'y': dfChina['2014'], 'type': 'bar', 'name': 'Carbon footprint of China at 2014'},
                 {'x': dfIndia['Country Name'], 'y': dfIndia['2014'], 'type': 'bar', 'name': 'Carbon footprint of India at 2014'},
                 {'x': dfUnitedStates['Country Name'], 'y': dfUnitedStates['2014'], 'type': 'bar', 'name': 'Carbon footprint of United States at 2014'},
+                {'x': dfGermany['Country Name'], 'y': dfGermany['2014'], 'type': 'bar', 'name': 'Carbon footprint of Germany at 2014'},
             ],
         }
     ),
@@ -258,44 +332,147 @@ def displayCarbonFootprint(value):
 #################################
 # page carbon-footprint 30 years#
 #################################
-dfFrance = selectLineOfCountryInDf(dfEmpreinteCarone30years, "France")
-fig = go.Figure(data=[go.Scatter(x=dfFrance['Country Name'], y=dfFrance['2014'], name='Carbon footprint of France at 2014')])
+
+date=['1960','1961','1962','1963','1964','1965','1966','1967','1968','1969','1970','1971','1972','1973','1974','1975','1976','1977','1978','1979','1980','1981','1982','1983','1984','1985','1986','1987','1988','1989','1990','1991','1992','1993','1994','1995','1996','1997','1998','1999','2000',
+	'2001','2002','2003','2004','2005','2006','2007','2008','2009','2010','2011','2012','2013','2014','2015','2016','2017','2018','2019','2020','2021'
+]
+
+colors = {
+    'background': '#111111',
+    'text': '#000000'
+}
+# Customize your own Layout
+  
+
 carbon_footprint_30years_layout = html.Div([
-    dcc.Link('Go back to Country', href='/country'),
-    html.Br(),
-    html.H1('Choice a country for see the evolutions of carbon'),
-    html.Br(),
-    dcc.Graph(
-        figure = fig
-    )
-], style = {'text-align': 'center'})
+    html.H1(
+        children='Emprunte carbone sur 30 ans',
+        style={
+            'textAlign': 'center',
+            'color': colors['text']
+        }
+    ),
+     dcc.Dropdown(
+                dfEmpreinteCarone30years['Country Name'].unique(),
+                id='xaxis-column'
+            ),
+    html.Div(id="report"),
+])
+
+
+
+
+# Callback allows components to interact
+@app.callback(
+    Output(component_id='report', component_property='children'),
+    Input(component_id='xaxis-column', component_property='value'),
+)
+
+#recup the value 
+
+def update_country(value):
+    if value is None:
+        return 'Please select a country'
+    else:
+        getValueForaCountry(value)
+        df = pd.read_csv("EmpreinteCarbone30years{value}.csv")
+        fig = px.line(df, x='year', y='value')
+        return html.Div([
+            html.H3('Empreinte carbonne de : '+ value + ' sur 30 ans '), 
+            dcc.Graph(     
+                figure = fig
+            )
+        ])
+
+
+def isNaN(num):
+    return num != num
+
+
+    
+
+def getValueForaCountry(value):
+    f = open("EmpreinteCarbone30years{value}.csv", "w")
+    f.truncate()
+    f.close()
+    valueTab = {'1960' : 0 ,'1961' : 0,'1962' : 0 ,'1963': 0,'1964': 0,'1965': 0 ,'1966' : 0,'1967' : 0,'1968' :  0,'1969' : 0,'1970' : 0 ,'1971' : 0,'1972' : 0 ,'1973' : 0 ,'1974' : 0 ,'1975' : 0,'1976' : 0,'1977' : 0 ,'1978' : 0 ,'1979' : 0 ,'1980': 0, '1981': 0,'1982': 0,'1983': 0,'1984': 0,'1985': 0,'1986': 0,'1987': 0,'1988': 0, '1989' : 0 ,'1990' : 0 ,'1989': 0,'1991': 0,'1992': 0,'1993': 0,'1994': 0,'1995': 0,'1996': 0,'1997': 0,'1998': 0,'1999': 0,'2000': 0,
+	'2001': 0,'2002': 0,'2003': 0,'2004': 0,'2005': 0,'2006': 0,'2007': 0,'2008': 0,'2009': 0,'2010': 0,'2011': 0,'2012': 0,'2013': 0,'2014': 0,'2015': 0,'2016': 0,'2017': 0,'2018': 0 ,'2019': 0,'2020': 0,'2021': 0}
+    for i in dfEmpreinteCarone30years.index:
+        if dfEmpreinteCarone30years.loc[i, 'CountryName'] == value:
+            for j in date:
+                if isNaN(dfEmpreinteCarone30years.loc[i, j]):
+                    valueTab[j] = 0
+                else:
+                    valueTab[j] = (dfEmpreinteCarone30years.loc[i, j])
+    print(valueTab)
+    with open('EmpreinteCarbone30years{value}.csv', 'a') as f:
+        key_list = list(valueTab.keys())
+        val_list = list(valueTab.values())
+        writer = csv.writer(f)
+        writer.writerow(['year', 'value'])
+        i = 0
+        j = 0
+        while j < len(key_list)-1 and i < len(val_list)-1:
+            writer.writerow([key_list[j], val_list[i]])
+            i += 1
+            j += 1
+    deleteNull("EmpreinteCarbone30years{value}.csv")
+        
+
+def deleteNull(fileName):
+    df = pd.read_csv(fileName)
+    for i in df.index:
+        value  = df.loc[i, 'value']
+        if value == 0:
+            df.drop(i, inplace=True)
+    df.to_csv("EmpreinteCarbone30years{value}.csv", index=False)
 
 ################################
 # page carbon-footprint-global #
 ################################
 
 
-fig = px.pie(dfEmpreinteCarbone, values='2014', names='Country Name', title='Population')
+def paysVoulus(pays):
+    return [pays, "Monde"]
 
 carbon_footprint_global_layout = html.Div([
-    dcc.Link('Go back to Country', href='/country'),
+    html.Div([
+        dcc.Link('Go back to Country', href='/country'),
+        html.H1('The carbon footprint at 2014'),
+        html.H1('Choice a country to compare')
+        ], style = {'width' : '100%'}),
     html.Br(),
-    html.H1('Choice a country to compare '),
+    html.Div([
+        html.H1('Countries where you are establised '),
+        dcc.Dropdown(["France", "Danemark", "Côte d'Ivoire", "Chine", "Inde", "États-Unis", "Allemagne"], id='carbon-footprint-global-paysimplente'),
+        html.Div(id="report-carbon-footprint-global-paysimplente"),
+    ], style = {'width': '50%',}),
+    
+    html.Div([
+    html.H1('Countries in the world'),
     dcc.Dropdown(
         id="carbon-footprint-global-dropdown",
         options=[
                 {"label": country, "value": country} for country in dfEmpreinteCarbone["Country Name"].unique()
             ],
     ),
-    dcc.Graph(
-        figure = fig
-    ),
     html.Div(id="report-carbon-footprint-global"),
-], style = {'text-align': 'center'})
+    ], style = {'width': '50%'}),
+    
+], style = {'text-align': 'center', 'display' : 'flex', 'flex-wrap' : 'wrap'})
+@callback(Output('report-carbon-footprint-global-paysimplente', 'children'), [Input('carbon-footprint-global-paysimplente', 'value')])
+def compareCarbonFootprint(country):
+    paysVoulusA = paysVoulus(country)
+    df = dfEmpreinteCarbone[dfEmpreinteCarbone["Country Name"].isin(paysVoulusA)]
+    return dcc.Graph(figure = px.pie(df, values='2014', names='Country Name', title='The carbon footprint at 2014'))
+
 @callback(Output('report-carbon-footprint-global', 'children'), [Input('carbon-footprint-global-dropdown', 'value')])
 def compareCarbonFootprint(country):
-    return px.pie(dfEmpreinteCarbone, values='2014', names='Country Name', title='Population')
-    
+    paysVoulusA = paysVoulus(country)
+    df = dfEmpreinteCarbone[dfEmpreinteCarbone["Country Name"].isin(paysVoulusA)]
+    return dcc.Graph(figure = px.pie(df, values='2014', names='Country Name', title='The carbon footprint at 2014'))
+
+
     
     
 
@@ -310,6 +487,9 @@ map_layout = html.Div([
     html.Br(),
     html.Br(),
     dcc.Link('World temperature forecasts from 2041 to 2060', href='/temperature'),
+    html.Br(),
+    html.Br(),
+    dcc.Link('Activity with the most carbon footprint', href='/activity'),
     html.Br(),
     html.Br(),
     dcc.Link('Go back to home', href='/')
@@ -371,6 +551,25 @@ temperature_layout = html.Div([
     )
 ], style = {'text-align': 'center'})
 
+#################
+# page activity #
+#################
+dfActivityFootprint=pd.read_csv("ActiviteAvecLePlusDempreinteCarbonesur1an.csv")
+
+fig =px.pie(dfActivityFootprint, values='Empreinte carbone en MtCO2', names='Sector', title='Carbone footprint by sector')
+
+activity_layout = html.Div([
+    dcc.Link('Go back to Map', href='/map'),
+    html.Br(),
+    html.H1(
+        children='Activity with the most carbon footprint',
+    ),
+    dcc.Graph(
+        id='life-exp-vs-gdp',
+        figure=fig
+    )
+], style = {'text-align': 'center'})
+
 # Update the index
 @callback(Output('page-content', 'children'),
               [Input('url', 'pathname')])
@@ -381,6 +580,8 @@ def display_page(pathname):
         return map_layout
     elif pathname == '/primary-energy':
         return primary_energy_layout
+    elif pathname == '/ges':
+        return ges_layout
     elif pathname == '/gdp-pop':
         return gdp_pop_layout
     elif pathname == '/carbon-footprint':
@@ -393,6 +594,8 @@ def display_page(pathname):
         return temperature_layout
     elif pathname == '/sea-level':
         return sea_level_layout
+    elif pathname == '/activity':
+        return activity_layout
     else:
         return index_page
     # You could also return a 404 "URL not found" page here
