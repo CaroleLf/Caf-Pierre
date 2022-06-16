@@ -52,33 +52,22 @@ CREATE TABLE "PIB"(
 c.execute('''
 CREATE TABLE "Empreinte_Carbone"(
     "année" INT NOT NULL,
-    "idActivité" INT NOT NULL,
+    "idRégion" INT NOT NULL,
     "produit" DECIMAL(8, 2) NULL,
-    PRIMARY KEY("année","idActivité"),
-    FOREIGN KEY("idActivité") REFERENCES "Activité"("idActivité")
-);
+    PRIMARY KEY("année","idRégion"),
+    FOREIGN KEY("idRégion") REFERENCES "Région"("idRégion")
+    );
 ''')
 
 
 c.execute('''
 CREATE TABLE "Activité"(
     "idActivité" INT NOT NULL,
-    "nomActivité" NVARCHAR(255) NOT NULL,
-    PRIMARY KEY("idActivité")
-);
-''')
-
-
-c.execute('''
-CREATE TABLE "Energie"(
-    "idEnergies" INT NOT NULL,
     "année" INT NOT NULL,
-    "idActivité" INT NOT NULL,
-    "nomEnergie" NVARCHAR(255) NOT NULL,
-    "estPrimaire" INT NOT NULL,
-    "consommation" DECIMAL(8, 2) NULL,
-    PRIMARY KEY("idEnergies","année","idActivité"),
-    FOREIGN KEY("idActivité") REFERENCES "Activité"("idActivité")
+    "nomActivité" NVARCHAR(255) NOT NULL,
+    "nomEnergie" NVARCHAR(255),
+    "consommation" DECIMAL(8, 2),
+    PRIMARY KEY("idActivité")
 );
 ''')
 
