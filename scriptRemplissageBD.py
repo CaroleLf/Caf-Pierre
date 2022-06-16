@@ -8,10 +8,26 @@ empreinteCarbone2018 = pd.read_csv(path.dirname(__file__) + "/testDasha/primary_
 pibPays = pd.read_csv(path.dirname(__file__) + "/script-df/pib.csv")
 populationPays = pd.read_csv(path.dirname(__file__) + "/script-df/pop_totale.csv")
 paysPaysEtContinent = pd.read_csv(path.dirname(__file__) + "/script-df/all.csv", usecols=['Country Name', 'region'])
+paysPaysEtContinent['Country Name'] = paysPaysEtContinent['Country Name'].str.replace("ô", "o")
+
 ActPlusCarbone = pd.read_csv(path.dirname(__file__) + "/ActiviteAvecLePlusDempreinteCarbonesur1an.csv")
 NBACTIVITE = ActPlusCarbone.shape[1]-1
-#NiveauMer = pd.read_csv(path.dirname(__file__) + "/CMIP6 - Sea level rise (SLR) Change meters - Long Term (2081-2100) SSP5-8.5 (rel. to 1995-2014) - Annual .csv")
 
+ghouse_china = pd.read_csv(path.dirname(__file__) + "/testDasha/greenhouse_gas/greenhouse_gas_china.csv", sep=";")
+ghouse_coteivoire = pd.read_csv(path.dirname(__file__) + "/testDasha/greenhouse_gas/greenhouse_gas_coteivoire.csv", sep=";")
+ghouse_denmark = pd.read_csv(path.dirname(__file__) + "/testDasha/greenhouse_gas/greenhouse_gas_denmark.csv", sep=";")
+ghouse_france = pd.read_csv(path.dirname(__file__) + "/testDasha/greenhouse_gas/greenhouse_gas_france.csv", sep=";")
+ghouse_inde = pd.read_csv(path.dirname(__file__) + "/testDasha/greenhouse_gas/greenhouse_gas_inde.csv", sep=";")
+ghouse_unitedstate = pd.read_csv(path.dirname(__file__) + "/testDasha/greenhouse_gas/greenhouse_gas_unitedstate.csv", sep=";")
+ghouse_world = pd.read_csv(path.dirname(__file__) + "/testDasha/greenhouse_gas/greenhouse_gas_world.csv", sep=";")
+
+primary_energy_china = pd.read_csv(path.dirname(__file__) + "/testDasha/primary_energy/primary_energy_china.csv", sep=";")
+primary_energy_coteivoire= pd.read_csv(path.dirname(__file__) + "/testDasha/primary_energy/primary_energy_coteivoire.csv", sep=";")
+primary_energy_denmark= pd.read_csv(path.dirname(__file__) + "/testDasha/primary_energy/primary_energy_denmark.csv", sep=";")
+primary_energy_france= pd.read_csv(path.dirname(__file__) + "/testDasha/primary_energy/primary_energy_france.csv", sep=";")
+primary_energy_india= pd.read_csv(path.dirname(__file__) + "/testDasha/primary_energy/primary_energy_india.csv", sep=";")
+primary_energy_unitedstates= pd.read_csv(path.dirname(__file__) + "/testDasha/primary_energy/primary_energy_unitedstates.csv", sep=";")
+primary_energy_world= pd.read_csv(path.dirname(__file__) + "/testDasha/primary_energy/primary_energy_world.csv", sep=";")
 paysVoulus = ["France", "Denmark", "Cote d'Ivoire", "China", "India", "United States"]
 
 conn = sqlite3.connect(path.dirname(__file__) + "/CoffeePierre.db")
@@ -146,12 +162,57 @@ def fillActivité():
                         ''')
         conn.commit()
 
+def fillGreenhouse():
+    for a, row in ghouse_china.iterrows():            
+        c.execute(f'''
+                insert into 'Greenhouse Gas' (année, nomRégion, Energy, Agriculture, 'Industry and Construction', Waste, 'Other Sectors')
+                values
+                ('{row['Unnamed: 0'][:4]}','China', '{row['Energy']}', '{row['Agriculture']}', '{row['Industry and Construction']}', '{row['Waste']}', '{row['Other Sectors']}')
+                ''')
+        conn.commit()
+    for a, row in ghouse_coteivoire.iterrows():
+        c.execute(f'''
+                insert into 'Greenhouse Gas' (année, nomRégion, Energy, Agriculture, 'Industry and Construction', Waste, 'Other Sectors')
+                values
+                ('{row['Unnamed: 0'][:4]}','Cote d''Ivoire', '{row['Energy']}', '{row['Agriculture']}', '{row['Industry and Construction']}', '{row['Waste']}', '{row['Other Sectors']}')
+                ''')
+        conn.commit()
+    for a, row in ghouse_denmark.iterrows():
+        c.execute(f'''
+                insert into 'Greenhouse Gas' (année, nomRégion, Energy, Agriculture, 'Industry and Construction', Waste, 'Other Sectors')
+                values
+                ('{row['Unnamed: 0'][:4]}','Denmark', '{row['Energy']}', '{row['Agriculture']}', '{row['Industry and Construction']}', '{row['Waste']}', '{row['Other Sectors']}')
+                ''')
+        conn.commit()
+    for a, row in ghouse_france.iterrows():
+        c.execute(f'''
+                insert into 'Greenhouse Gas' (année, nomRégion, Energy, Agriculture, 'Industry and Construction', Waste, 'Other Sectors')
+                values
+                ('{row['Unnamed: 0'][:4]}','France', '{row['Energy']}', '{row['Agriculture']}', '{row['Industry and Construction']}', '{row['Waste']}', '{row['Other Sectors']}')
+                ''')
+        conn.commit()
+    for a, row in ghouse_inde.iterrows():
+        c.execute(f'''
+                insert into 'Greenhouse Gas' (année, nomRégion, Energy, Agriculture, 'Industry and Construction', Waste, 'Other Sectors')
+                values
+                ('{row['Unnamed: 0'][:4]}','India', '{row['Energy']}', '{row['Agriculture']}', '{row['Industry and Construction']}', '{row['Waste']}', '{row['Other Sectors']}')
+                ''')
+        conn.commit()
+    for a, row in ghouse_unitedstate.iterrows():
+        c.execute(f'''
+                insert into 'Greenhouse Gas' (année, nomRégion, Energy, Agriculture, 'Industry and Construction', Waste, 'Other Sectors')
+                values
+                ('{row['Unnamed: 0'][:4]}','United States', '{row['Energy']}', '{row['Agriculture']}', '{row['Industry and Construction']}', '{row['Waste']}', '{row['Other Sectors']}')
+                ''')
+        conn.commit()
+
+"""
 def fillEmpreinteCarbone():
-    """
+    '''
     Fonction de remplissage de la table Empreinte_Carbone
-    """
+    ''''''
     df = empreinteCarbone
-    df['Country Name'] = df['Country Name'].str.replace("""'""", """''""")
+    df['Country Name'] = df['Country Name'].str.replace("'", "''")
     regions = df.values
 
     for col_name, col in df.transpose().iterrows():
@@ -179,12 +240,13 @@ def fillEmpreinteCarbone():
                         ''')
                 i+=1
     conn.commit()
-
+"""
 fillPIB()
 fillHabitants()
 fillRegions()
 fillActivité()
-fillEmpreinteCarbone()
+fillGreenhouse()
+#fillEmpreinteCarbone()
 
 conn.commit()
 
