@@ -8,7 +8,7 @@ empreinteCarbone2018 = pd.read_csv(path.dirname(__file__) + "/testDasha/primary_
 pibPays = pd.read_csv(path.dirname(__file__) + "/script-df/pib.csv")
 populationPays = pd.read_csv(path.dirname(__file__) + "/script-df/pop_totale.csv")
 paysPaysEtContinent = pd.read_csv(path.dirname(__file__) + "/script-df/all.csv", usecols=['Country Name', 'region'])
-ActPlusCarbone = pd.read_csv(path.dirname(__file__) + "/ActiviteAvecLePlusDempreinteCarbone.csv")
+ActPlusCarbone = pd.read_csv(path.dirname(__file__) + "/ActiviteAvecLePlusDempreinteCarbonesur1an.csv")
 NBACTIVITE = ActPlusCarbone.shape[1]-1
 #NiveauMer = pd.read_csv(path.dirname(__file__) + "/CMIP6 - Sea level rise (SLR) Change meters - Long Term (2081-2100) SSP5-8.5 (rel. to 1995-2014) - Annual .csv")
 
@@ -138,17 +138,13 @@ def fillRegions():
     conn.commit()    
 
 def fillActivité():
-    activites = ActPlusCarbone.columns.to_list()[1:]
-    c.execute("""SELECT idActivité FROM Région""")
-    res = c.fetchall()
-    while res != []:
-        row = res.pop()
+    for a, row in ActPlusCarbone.iterrows():
         c.execute(f'''
-                    insert into Activité (idActivité, nomActivité)
-                    values
-                    ('{row[0]}','{activites[row[0]%len(activites)]}')
-                    ''')
-    conn.commit()
+                        insert into Activité (nomActivité, empreinte)
+                        values
+                        ('{row['Sector']}','{row['Empreinte carbone en MtCO2']}')
+                        ''')
+        conn.commit()
 
 def fillEmpreinteCarbone():
     """
@@ -184,10 +180,10 @@ def fillEmpreinteCarbone():
                 i+=1
     conn.commit()
 
-#fillPIB()
-#fillHabitants()
+fillPIB()
+fillHabitants()
 fillRegions()
-#fillActivité()
+fillActivité()
 fillEmpreinteCarbone()
 
 conn.commit()
