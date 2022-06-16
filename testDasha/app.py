@@ -4,6 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import plotly.express as px
 import plotly.graph_objs as go
+import geopandas as gpd
 
 #############################################################################################################################
 
@@ -11,6 +12,10 @@ dfPibPays = pd.read_csv("pib.csv", usecols=['Country Name', '2020'])
 dfPopulationPays = pd.read_csv("pop_totale.csv", usecols=['Country Name', '2020'])
 dfEmpreinteCarbone = pd.read_csv("empreinte_carbone.csv", usecols=['Country Name', '2014'])
 dfEmpreinteCarone30years = pd.read_csv("empreinte_carbone.csv", usecols=['Country Name', "1984","1985","1986","1987","1988","1989","1990","1991","1992","1993","1994","1995","1996","1997","1998","1999","2000","2001","2002","2003","2004","2005","2006","2007","2008","2009","2010","2011","2012","2013","2014"])
+dfSeaLevel = pd.read_csv("NiveauMerUpdate.csv")
+dfTemperatureForecast = pd.read_csv("AllTemperatureMean2041-2060Pays.csv")
+dfAverageTemperature = pd.read_csv("AverageTemperature1941-1960.csv")
+counties = gpd.read_file("custom.geo.json")
 
 #############################################################################################################################
 
@@ -87,6 +92,7 @@ app.layout = html.Div([
 #############
 index_page = html.Div([
     html.H1('CoffeePierre'),
+    #html.Img(src='logo.png'),
     dcc.Link('Go to Country', href='/country'),
     html.Br(),
     html.Br(),
@@ -97,6 +103,8 @@ index_page = html.Div([
 # page country #
 ################
 country_layout = html.Div([
+    html.H1('Country'),
+    html.Br(),
     dcc.Link('Display the primary energy consumption of a country', href='/primary-energy'),
     html.Br(),
     html.Br(),
@@ -107,6 +115,9 @@ country_layout = html.Div([
     html.Br(),
     html.Br(),
     dcc.Link("Display the evolution of a country's carbon footprint over 30 years", href='/carbon-footprint-30'),
+    html.Br(),
+    html.Br(),
+    dcc.Link("Display a country's carbon footprint compared to the global footprint", href='/carbon-footprint-global'),
     html.Br(),
     html.Br(),
     dcc.Link('Go back to home', href='/'),
@@ -161,7 +172,7 @@ def retGraphPrimaryEnergy(value):
             'layout': {
                 'title': 'Primary energy consumption of the country',
                 'xaxis': {'title': 'Date / 30 years'},
-                'yaxis': {'title': 'Primary energy consumption'},
+                'yaxis': {'title': 'Mtoe'},
             }
         }
     )
@@ -258,24 +269,107 @@ carbon_footprint_30years_layout = html.Div([
         figure = fig
     )
 ], style = {'text-align': 'center'})
+
+################################
+# page carbon-footprint-global #
+################################
+
+
+fig = px.pie(dfEmpreinteCarbone, values='2014', names='Country Name', title='Population')
+
+carbon_footprint_global_layout = html.Div([
+    dcc.Link('Go back to Country', href='/country'),
+    html.Br(),
+    html.H1('Choice a country to compare '),
+    dcc.Dropdown(
+        id="carbon-footprint-global-dropdown",
+        options=[
+                {"label": country, "value": country} for country in dfEmpreinteCarbone["Country Name"].unique()
+            ],
+    ),
+    dcc.Graph(
+        figure = fig
+    ),
+    html.Div(id="report-carbon-footprint-global"),
+], style = {'text-align': 'center'})
+@callback(Output('report-carbon-footprint-global', 'children'), [Input('carbon-footprint-global-dropdown', 'value')])
+def compareCarbonFootprint(country):
+    return px.pie(dfEmpreinteCarbone, values='2014', names='Country Name', title='Population')
+    
+    
+    
+
+
 ############
 # page map #
 ############
 map_layout = html.Div([
     html.H1('Map'),
-    dcc.RadioItems(['Orange', 'Blue', 'Red'], 'Orange', id='map-radios'),
-    html.Div(id='map-content'),
     html.Br(),
-    dcc.Link('Go to Country', href='/country'),
+    dcc.Link('Sea level rise forecasts between 2081 and 2100', href='/sea-level'),
+    html.Br(),
+    html.Br(),
+    dcc.Link('World temperature forecasts from 2041 to 2060', href='/temperature'),
+    html.Br(),
     html.Br(),
     dcc.Link('Go back to home', href='/')
 ], style = {'text-align': 'center'})
-
 @callback(Output('map-content', 'children'),
               [Input('map-radios', 'value')])
 def map_radios(value):
     return f'You have selected {value}'
 
+##################
+# page sea level #
+##################
+fig = px.choropleth_mapbox(dfSeaLevel, geojson=counties, locations='pays', featureidkey="properties.iso_a3", color='total',
+                           color_continuous_scale="Viridis",mapbox_style="carto-positron",
+                           )
+
+fig2 = px.bar(dfAverageTemperature, x='country', y='values', color='values', barmode="group")
+
+sea_level_layout = html.Div([
+    dcc.Link('Go back to Map', href='/map'),
+    html.Br(),
+    html.H1(children='Map of rising waters by country'),
+    html.H4(children = 'Zoom in and out with your mouse wheel'),
+    html.Div(children='''
+        This data was provided by the UPCC.
+    '''),
+    dcc.Graph(
+        id='Map ocean',
+        figure=fig
+    ),
+], style = {'text-align': 'center'})
+
+####################
+# page temperature #
+####################
+fig3 = px.choropleth_mapbox(dfTemperatureForecast, geojson=counties, locations='pays', featureidkey="properties.iso_a3", color='tas_anom',
+                           color_continuous_scale="Viridis",mapbox_style="carto-positron",
+                           )
+temperature_layout = html.Div([
+    dcc.Link('Go back to Map', href='/map'),
+    html.Br(),
+    html.H2(children='Average temperature evolution diagram from 2041 - 2060 based on 1995 - 2014'),
+    html.Div(children='''
+        This data was provided by ipcc.
+    '''),
+    html.H4(children = 'Zoom in and out with your mouse wheel'),
+    dcc.Graph(
+        id='Average Temperature',
+        figure=fig3
+    ),
+    html.H2(children='Temperature increase map from 2041 to 2060 '),
+    html.Div(children='''
+        This data was provided by UPCC.
+    '''),
+    
+    dcc.Graph(
+        id='TemperatureCountry',
+        figure=fig2
+    )
+], style = {'text-align': 'center'})
 
 # Update the index
 @callback(Output('page-content', 'children'),
@@ -293,6 +387,12 @@ def display_page(pathname):
         return carbon_footprint_layout
     elif pathname == '/carbon-footprint-30':
         return carbon_footprint_30years_layout
+    elif pathname == '/carbon-footprint-global':
+        return carbon_footprint_global_layout
+    elif pathname == '/temperature':
+        return temperature_layout
+    elif pathname == '/sea-level':
+        return sea_level_layout
     else:
         return index_page
     # You could also return a 404 "URL not found" page here
