@@ -3,8 +3,8 @@ from tkinter import S
 import pandas as pd
 from os import path
 
-empreinteCarbone = pd.read_csv(path.dirname(__file__) + "/testDasha/Empreinte_CarboneAPI_EN.ATM.GHGT.KT.CE_DS2_fr_csv_v2_4166498/API_EN.ATM.GHGT.KT.CE_DS2_fr_csv_v2_4166498.csv")
-empreinteCarbone2018 = pd.read_csv(path.dirname(__file__) + "/testDasha/Empreinte_CarboneAPI_EN.ATM.GHGT.KT.CE_DS2_fr_csv_v2_4166498/API_EN.ATM.GHGT.KT.CE_DS2_fr_csv_v2_4166498.csv", usecols=['Country Name','Indicator Name','2018'])
+empreinteCarbone = pd.read_csv(path.dirname(__file__) + "/testDasha/primary_energy.csv")
+empreinteCarbone2018 = pd.read_csv(path.dirname(__file__) + "/testDasha/primary_energy.csv", usecols=['Country Name','Indicator Name','2018'])
 pibPays = pd.read_csv(path.dirname(__file__) + "/script-df/pib.csv")
 populationPays = pd.read_csv(path.dirname(__file__) + "/script-df/pop_totale.csv")
 paysPaysEtContinent = pd.read_csv(path.dirname(__file__) + "/script-df/all.csv", usecols=['Country Name', 'region'])
@@ -154,30 +154,41 @@ def fillEmpreinteCarbone():
     """
     Fonction de remplissage de la table Empreinte_Carbone
     """
-    for col_name, col in empreinteCarbone.transpose().iterrows():
+    df = empreinteCarbone
+    df['Country Name'] = df['Country Name'].str.replace("""'""", """''""")
+    regions = df.values
+
+    for col_name, col in df.transpose().iterrows():
         dates = [str(year) for year in range(1959,2022)]
         if col_name in dates:
             i = 0
+            
             for val in col.values:
+                c.execute(f'''SELECT idRégion FROM Région WHERE nomRégion = '{regions[i][0]}' ''')
+                id = c.fetchone()
+                print(id)
                 if val == float('nan'):
-                    c.execute(f'''  
-                        insert into Habitants ('année', 'idActivité')
+                    c.execute(f'''
+                        insert into Empreinte_Carbone ('année', 'idRégion')
                         values
-                        ('{col_name}','{"-------------------------------"}')
+                        ('{col_name}','{id[0]}')
                         ''')
+                elif str(id) == "None":
+                    pass
                 else:
                     c.execute(f'''
-                        insert into Habitants ('année', 'idActivité', 'produit')
+                        insert into Empreinte_Carbone ('année', 'idRégion', 'produit')
                         values
-                        ('{col_name}','{"-------------------------------"}','{val}')
+                        ('{col_name}','{id[0]}','{val}')
                         ''')
                 i+=1
     conn.commit()
 
-fillPIB()
-fillHabitants()
+#fillPIB()
+#fillHabitants()
 fillRegions()
-fillActivité()
+#fillActivité()
+fillEmpreinteCarbone()
 
 conn.commit()
 
