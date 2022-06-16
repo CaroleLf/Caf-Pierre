@@ -62,12 +62,9 @@ CREATE TABLE "Empreinte_Carbone"(
 
 c.execute('''
 CREATE TABLE "Activité"(
-    "idActivité" INT NOT NULL,
-    "année" INT NOT NULL,
     "nomActivité" NVARCHAR(255) NOT NULL,
-    "nomEnergie" NVARCHAR(255),
-    "consommation" DECIMAL(8, 2),
-    PRIMARY KEY("idActivité")
+    "empreinte" INT NOT NULL,
+    PRIMARY KEY("nomActivité")
 );
 ''')
 
