@@ -8,14 +8,14 @@ import geopandas as gpd
 
 #############################################################################################################################
 
-dfPibPays = pd.read_csv("pib.csv", usecols=['Country Name', '2020'])
-dfPopulationPays = pd.read_csv("pop_totale.csv", usecols=['Country Name', '2020'])
-dfEmpreinteCarbone = pd.read_csv("empreinte_carbone.csv", usecols=['Country Name', '2014'])
-dfEmpreinteCarone30years = pd.read_csv("empreinte_carbone.csv", usecols=['Country Name', "1984","1985","1986","1987","1988","1989","1990","1991","1992","1993","1994","1995","1996","1997","1998","1999","2000","2001","2002","2003","2004","2005","2006","2007","2008","2009","2010","2011","2012","2013","2014"])
-dfSeaLevel = pd.read_csv("NiveauMerUpdate.csv")
-dfTemperatureForecast = pd.read_csv("AllTemperatureMean2041-2060Pays.csv")
-dfAverageTemperature = pd.read_csv("AverageTemperature1941-1960.csv")
-counties = gpd.read_file("custom.geo.json")
+dfPibPays = pd.read_csv("/home/etd/projet/SAE2.04_2.05_equipe4/script-df/pib.csv", usecols=['Country Name', '2020'])
+dfPopulationPays = pd.read_csv("/home/etd/projet/SAE2.04_2.05_equipe4/script-df/pop_totale.csv", usecols=['Country Name', '2020'])
+dfEmpreinteCarbone = pd.read_csv("/home/etd/projet/SAE2.04_2.05_equipe4/testDasha/empreinte_carbone.csv", usecols=['Country Name', '2014'])
+dfEmpreinteCarone30years = pd.read_csv("/home/etd/projet/SAE2.04_2.05_equipe4/testDasha/empreinte_carbone.csv", usecols=['Country Name', "1984","1985","1986","1987","1988","1989","1990","1991","1992","1993","1994","1995","1996","1997","1998","1999","2000","2001","2002","2003","2004","2005","2006","2007","2008","2009","2010","2011","2012","2013","2014"])
+dfSeaLevel = pd.read_csv("/home/etd/projet/SAE2.04_2.05_equipe4/testDasha/NiveauMerUpdate.csv")
+dfTemperatureForecast = pd.read_csv("/home/etd/projet/SAE2.04_2.05_equipe4/testDasha/AllTemperatureMean2041-2060Pays.csv")
+dfAverageTemperature = pd.read_csv("/home/etd/projet/SAE2.04_2.05_equipe4/testDasha/AverageTemperature1941-1960.csv")
+counties = gpd.read_file("/home/etd/projet/SAE2.04_2.05_equipe4/custom.geo.json")
 
 #############################################################################################################################
 
@@ -55,22 +55,22 @@ dateVoulue = ["1986-01-01 00:00:00",
 def setDateVoulue(df):
     return df[df["Unnamed: 0"].isin(dateVoulue)]
 
-penergyfrance = pd.read_csv("primary_energy/primary_energy_france.csv", sep=';')
+penergyfrance = pd.read_csv("testDasha/primary_energy/primary_energy_france.csv", sep=';')
 penergyfrance = setDateVoulue(penergyfrance)
 
-penergychina = pd.read_csv("primary_energy/primary_energy_china.csv", sep=';')
+penergychina = pd.read_csv("testDasha/primary_energy/primary_energy_china.csv", sep=';')
 penergychina = setDateVoulue(penergychina)
 
-penergycoteivoire = pd.read_csv("primary_energy/primary_energy_coteivoire.csv", sep=';')
+penergycoteivoire = pd.read_csv("testDasha/primary_energy/primary_energy_coteivoire.csv", sep=';')
 penergycoteivoire = setDateVoulue(penergycoteivoire)
 
-penergyindia = pd.read_csv("primary_energy/primary_energy_india.csv", sep=';')
+penergyindia = pd.read_csv("testDasha/primary_energy/primary_energy_india.csv", sep=';')
 penergyindia = setDateVoulue(penergyindia)
 
-penergydenmark = pd.read_csv("primary_energy/primary_energy_denmark.csv", sep=';')
+penergydenmark = pd.read_csv("testDasha/primary_energy/primary_energy_denmark.csv", sep=';')
 penergydenmark = setDateVoulue(penergydenmark)
 
-penergyunitedstates = pd.read_csv("primary_energy/primary_energy_unitedstates.csv", sep=';')
+penergyunitedstates = pd.read_csv("testDasha/primary_energy/primary_energy_unitedstates.csv", sep=';')
 penergyunitedstates = setDateVoulue(penergyunitedstates)
 
 #############################################################################################################################
