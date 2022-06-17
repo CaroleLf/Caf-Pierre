@@ -345,19 +345,34 @@ colors = {
   
 
 carbon_footprint_30years_layout = html.Div([
+    html.Div([    
+    dcc.Link('Go back to Country', href='/country'),
+    html.Br(),
     html.H1(
-        children='Emprunte carbone sur 30 ans',
+        children='Carbon footprint of a country over 30 years',
         style={
             'textAlign': 'center',
             'color': colors['text']
         }
+    )], style = {'width' : '100%'}),
+    html.Div([
+        html.H3(
+        children='Choice a country where you are established',
     ),
-     dcc.Dropdown(
+    dcc.Dropdown(["France", "Danemark", "Côte d'Ivoire", "Chine", "Inde", "États-Unis", "Allemagne"], 
+    id='carbon-footprint-30years-paysimplente'),
+        html.Div(id="report-carbon-footprint-30years-paysimplente")], style = {'width' : '50%'}),
+    html.Div([
+         html.H3(
+        children='Choice a country in the world',
+    ),
+    dcc.Dropdown(
                 dfEmpreinteCarone30years['Country Name'].unique(),
                 id='xaxis-column'
             ),
     html.Div(id="report"),
-])
+    ], style = {'width' : '50%'})
+], style = {'text-align': 'center', 'display' : 'flex', 'flex-wrap' : 'wrap'})
 
 
 
@@ -367,7 +382,10 @@ carbon_footprint_30years_layout = html.Div([
     Output(component_id='report', component_property='children'),
     Input(component_id='xaxis-column', component_property='value'),
 )
-
+@app.callback(
+    Output(component_id='report-carbon-footprint-30years-paysimplente', component_property='children'),
+    Input(component_id='carbon-footprint-30years-paysimplente', component_property='value'),
+)
 #recup the value 
 
 def update_country(value):
@@ -376,9 +394,9 @@ def update_country(value):
     else:
         getValueForaCountry(value)
         df = pd.read_csv("EmpreinteCarbone30years{value}.csv")
-        fig = px.line(df, x='year', y='value')
+        fig = px.line(df, x='Year', y='KTO2e')
         return html.Div([
-            html.H3('Empreinte carbonne de : '+ value + ' sur 30 ans '), 
+            html.H3('Carbon footprint of : '+ value + ' over 30 years'),
             dcc.Graph(     
                 figure = fig
             )
@@ -388,9 +406,6 @@ def update_country(value):
 def isNaN(num):
     return num != num
 
-
-    
-
 def getValueForaCountry(value):
     f = open("EmpreinteCarbone30years{value}.csv", "w")
     f.truncate()
@@ -398,18 +413,17 @@ def getValueForaCountry(value):
     valueTab = {'1960' : 0 ,'1961' : 0,'1962' : 0 ,'1963': 0,'1964': 0,'1965': 0 ,'1966' : 0,'1967' : 0,'1968' :  0,'1969' : 0,'1970' : 0 ,'1971' : 0,'1972' : 0 ,'1973' : 0 ,'1974' : 0 ,'1975' : 0,'1976' : 0,'1977' : 0 ,'1978' : 0 ,'1979' : 0 ,'1980': 0, '1981': 0,'1982': 0,'1983': 0,'1984': 0,'1985': 0,'1986': 0,'1987': 0,'1988': 0, '1989' : 0 ,'1990' : 0 ,'1989': 0,'1991': 0,'1992': 0,'1993': 0,'1994': 0,'1995': 0,'1996': 0,'1997': 0,'1998': 0,'1999': 0,'2000': 0,
 	'2001': 0,'2002': 0,'2003': 0,'2004': 0,'2005': 0,'2006': 0,'2007': 0,'2008': 0,'2009': 0,'2010': 0,'2011': 0,'2012': 0,'2013': 0,'2014': 0,'2015': 0,'2016': 0,'2017': 0,'2018': 0 ,'2019': 0,'2020': 0,'2021': 0}
     for i in dfEmpreinteCarone30years.index:
-        if dfEmpreinteCarone30years.loc[i, 'CountryName'] == value:
+        if dfEmpreinteCarone30years.loc[i, 'Country Name'] == value:
             for j in date:
                 if isNaN(dfEmpreinteCarone30years.loc[i, j]):
                     valueTab[j] = 0
                 else:
                     valueTab[j] = (dfEmpreinteCarone30years.loc[i, j])
-    print(valueTab)
     with open('EmpreinteCarbone30years{value}.csv', 'a') as f:
         key_list = list(valueTab.keys())
         val_list = list(valueTab.values())
         writer = csv.writer(f)
-        writer.writerow(['year', 'value'])
+        writer.writerow(['Year', 'KTO2e'])
         i = 0
         j = 0
         while j < len(key_list)-1 and i < len(val_list)-1:
@@ -422,7 +436,7 @@ def getValueForaCountry(value):
 def deleteNull(fileName):
     df = pd.read_csv(fileName)
     for i in df.index:
-        value  = df.loc[i, 'value']
+        value  = df.loc[i, 'KTO2e']
         if value == 0:
             df.drop(i, inplace=True)
     df.to_csv("EmpreinteCarbone30years{value}.csv", index=False)
@@ -503,10 +517,10 @@ def map_radios(value):
 # page sea level #
 ##################
 fig = px.choropleth_mapbox(dfSeaLevel, geojson=counties, locations='pays', featureidkey="properties.iso_a3", color='total',
-                           color_continuous_scale="Viridis",mapbox_style="carto-positron",
+                           color_continuous_scale="Viridis",mapbox_style="carto-positron", zoom = 0,width=1000,height=1000
                            )
 
-fig2 = px.bar(dfAverageTemperature, x='country', y='values', color='values', barmode="group")
+
 
 sea_level_layout = html.Div([
     dcc.Link('Go back to Map', href='/map'),
@@ -518,15 +532,18 @@ sea_level_layout = html.Div([
     '''),
     dcc.Graph(
         id='Map ocean',
-        figure=fig
+        figure=fig,
+        style = {'margin-left' : '22%'}
     ),
 ], style = {'text-align': 'center'})
 
 ####################
 # page temperature #
 ####################
+fig2 = px.bar(dfAverageTemperature, x='country', y='values', color='values', barmode="group")
+
 fig3 = px.choropleth_mapbox(dfTemperatureForecast, geojson=counties, locations='pays', featureidkey="properties.iso_a3", color='tas_anom',
-                           color_continuous_scale="Viridis",mapbox_style="carto-positron",
+                           color_continuous_scale="Viridis",mapbox_style="carto-positron", zoom = 0,width=1000,height=1000
                            )
 temperature_layout = html.Div([
     dcc.Link('Go back to Map', href='/map'),
