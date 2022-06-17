@@ -2,31 +2,29 @@ import sqlite3
 import pandas as pd
 from os import path
 
-empreinteCarbone = pd.read_csv(path.dirname(__file__) + "/testDasha/primary_energy.csv")
-empreinteCarbone2018 = pd.read_csv(path.dirname(__file__) + "/testDasha/primary_energy.csv", usecols=['Country Name','Indicator Name','2018'])
-pibPays = pd.read_csv(path.dirname(__file__) + "/script-df/pib.csv")
-populationPays = pd.read_csv(path.dirname(__file__) + "/script-df/pop_totale.csv")
-paysPaysEtContinent = pd.read_csv(path.dirname(__file__) + "/script-df/all.csv", usecols=['Country Name', 'region'])
+pibPays = pd.read_csv(path.dirname(__file__) + "/application/csv/pib.csv")
+populationPays = pd.read_csv(path.dirname(__file__) + "/application/csv/pop_totale.csv")
+paysPaysEtContinent = pd.read_csv(path.dirname(__file__) + "/application/csv/all.csv", usecols=['Country Name', 'region'])
 paysPaysEtContinent['Country Name'] = paysPaysEtContinent['Country Name'].str.replace("ô", "o")
 
 ActPlusCarbone = pd.read_csv(path.dirname(__file__) + "/ActiviteAvecLePlusDempreinteCarbonesur1an.csv")
 NBACTIVITE = ActPlusCarbone.shape[1]-1
 
-ghouse_china = pd.read_csv(path.dirname(__file__) + "/testDasha/greenhouse_gas/greenhouse_gas_china.csv", sep=";")
-ghouse_coteivoire = pd.read_csv(path.dirname(__file__) + "/testDasha/greenhouse_gas/greenhouse_gas_coteivoire.csv", sep=";")
-ghouse_denmark = pd.read_csv(path.dirname(__file__) + "/testDasha/greenhouse_gas/greenhouse_gas_denmark.csv", sep=";")
-ghouse_france = pd.read_csv(path.dirname(__file__) + "/testDasha/greenhouse_gas/greenhouse_gas_france.csv", sep=";")
-ghouse_inde = pd.read_csv(path.dirname(__file__) + "/testDasha/greenhouse_gas/greenhouse_gas_inde.csv", sep=";")
-ghouse_unitedstate = pd.read_csv(path.dirname(__file__) + "/testDasha/greenhouse_gas/greenhouse_gas_unitedstate.csv", sep=";")
-ghouse_germany = pd.read_csv(path.dirname(__file__) + "/testDasha/greenhouse_gas/greenhouse_gas_germany.csv", sep=";")
+ghouse_china = pd.read_csv(path.dirname(__file__) + "/application/greenhouse_gas/greenhouse_gas_china.csv", sep=";")
+ghouse_coteivoire = pd.read_csv(path.dirname(__file__) + "/application/greenhouse_gas/greenhouse_gas_coteivoire.csv", sep=";")
+ghouse_denmark = pd.read_csv(path.dirname(__file__) + "/application/greenhouse_gas/greenhouse_gas_denmark.csv", sep=";")
+ghouse_france = pd.read_csv(path.dirname(__file__) + "/application/greenhouse_gas/greenhouse_gas_france.csv", sep=";")
+ghouse_inde = pd.read_csv(path.dirname(__file__) + "/application/greenhouse_gas/greenhouse_gas_inde.csv", sep=";")
+ghouse_unitedstate = pd.read_csv(path.dirname(__file__) + "/application/greenhouse_gas/greenhouse_gas_unitedstate.csv", sep=";")
+ghouse_germany = pd.read_csv(path.dirname(__file__) + "/application/greenhouse_gas/greenhouse_gas_germany.csv", sep=";")
 
-primary_energy_china = pd.read_csv(path.dirname(__file__) + "/testDasha/primary_energy/primary_energy_china.csv", sep=";")
-primary_energy_coteivoire= pd.read_csv(path.dirname(__file__) + "/testDasha/primary_energy/primary_energy_coteivoire.csv", sep=";")
-primary_energy_denmark= pd.read_csv(path.dirname(__file__) + "/testDasha/primary_energy/primary_energy_denmark.csv", sep=";")
-primary_energy_france= pd.read_csv(path.dirname(__file__) + "/testDasha/primary_energy/primary_energy_france.csv", sep=";")
-primary_energy_india= pd.read_csv(path.dirname(__file__) + "/testDasha/primary_energy/primary_energy_india.csv", sep=";")
-primary_energy_unitedstates= pd.read_csv(path.dirname(__file__) + "/testDasha/primary_energy/primary_energy_unitedstates.csv", sep=";")
-primary_energy_germany= pd.read_csv(path.dirname(__file__) + "/testDasha/primary_energy/primary_energy_germany.csv", sep=";")
+primary_energy_china = pd.read_csv(path.dirname(__file__) + "/application/primary_energy/primary_energy_china.csv", sep=";")
+primary_energy_coteivoire= pd.read_csv(path.dirname(__file__) + "/application/primary_energy/primary_energy_coteivoire.csv", sep=";")
+primary_energy_denmark= pd.read_csv(path.dirname(__file__) + "/application/primary_energy/primary_energy_denmark.csv", sep=";")
+primary_energy_france= pd.read_csv(path.dirname(__file__) + "/application/primary_energy/primary_energy_france.csv", sep=";")
+primary_energy_india= pd.read_csv(path.dirname(__file__) + "/application/primary_energy/primary_energy_india.csv", sep=";")
+primary_energy_unitedstates= pd.read_csv(path.dirname(__file__) + "/application/primary_energy/primary_energy_unitedstates.csv", sep=";")
+primary_energy_germany= pd.read_csv(path.dirname(__file__) + "/application/primary_energy/primary_energy_germany.csv", sep=";")
 
 conn = sqlite3.connect(path.dirname(__file__) + "/CoffeePierre.db")
 c = conn.cursor()
