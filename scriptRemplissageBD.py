@@ -18,7 +18,7 @@ ghouse_denmark = pd.read_csv(path.dirname(__file__) + "/testDasha/greenhouse_gas
 ghouse_france = pd.read_csv(path.dirname(__file__) + "/testDasha/greenhouse_gas/greenhouse_gas_france.csv", sep=";")
 ghouse_inde = pd.read_csv(path.dirname(__file__) + "/testDasha/greenhouse_gas/greenhouse_gas_inde.csv", sep=";")
 ghouse_unitedstate = pd.read_csv(path.dirname(__file__) + "/testDasha/greenhouse_gas/greenhouse_gas_unitedstate.csv", sep=";")
-ghouse_world = pd.read_csv(path.dirname(__file__) + "/testDasha/greenhouse_gas/greenhouse_gas_world.csv", sep=";")
+ghouse_germany = pd.read_csv(path.dirname(__file__) + "/testDasha/greenhouse_gas/greenhouse_gas_germany.csv", sep=";")
 
 primary_energy_china = pd.read_csv(path.dirname(__file__) + "/testDasha/primary_energy/primary_energy_china.csv", sep=";")
 primary_energy_coteivoire= pd.read_csv(path.dirname(__file__) + "/testDasha/primary_energy/primary_energy_coteivoire.csv", sep=";")
@@ -26,7 +26,7 @@ primary_energy_denmark= pd.read_csv(path.dirname(__file__) + "/testDasha/primary
 primary_energy_france= pd.read_csv(path.dirname(__file__) + "/testDasha/primary_energy/primary_energy_france.csv", sep=";")
 primary_energy_india= pd.read_csv(path.dirname(__file__) + "/testDasha/primary_energy/primary_energy_india.csv", sep=";")
 primary_energy_unitedstates= pd.read_csv(path.dirname(__file__) + "/testDasha/primary_energy/primary_energy_unitedstates.csv", sep=";")
-primary_energy_world= pd.read_csv(path.dirname(__file__) + "/testDasha/primary_energy/primary_energy_world.csv", sep=";")
+primary_energy_germany= pd.read_csv(path.dirname(__file__) + "/testDasha/primary_energy/primary_energy_germany.csv", sep=";")
 
 conn = sqlite3.connect(path.dirname(__file__) + "/CoffeePierre.db")
 c = conn.cursor()
@@ -117,6 +117,11 @@ def fillHabitants():
                         ('{col_name}','{i}','{val}')
                         ''')
                 i+=1
+    c.execute(f'''
+                        insert into Habitants ('année', 'idRégion', 'nbHabitant')
+                        values
+                        ('2020','999','7763498647')
+                        ''')
     conn.commit()
 
 def fillRegions():
@@ -147,6 +152,11 @@ def fillRegions():
                 ('{idReg}','{row['Region Name']}','0','{idAct}')
                 ''')
                 idAct+=1
+    c.execute(f'''
+                insert into Région (idRégion, nomRégion, estPays)
+                values
+                ('999','World','0')
+                ''')
     conn.commit()    
 
 def fillActivité():
@@ -202,6 +212,13 @@ def fillGreenhouse():
                 ('{row['Unnamed: 0'][:4]}','United States', '{row['Energy']}', '{row['Agriculture']}', '{row['Industry and Construction']}', '{row['Waste']}', '{row['Other Sectors']}')
                 ''')
         conn.commit()
+    for a, row in ghouse_germany.iterrows():
+        c.execute(f'''
+                insert into 'Greenhouse Gas' (année, nomRégion, Energy, Agriculture, 'Industry and Construction', Waste, 'Other Sectors')
+                values
+                ('{row['Unnamed: 0'][:4]}','Germany', '{row['Energy']}', '{row['Agriculture']}', '{row['Industry and Construction']}', '{row['Waste']}', '{row['Other Sectors']}')
+                ''')
+        conn.commit()
 
 def fillPrimaryEnergy():
     for a, row in primary_energy_china.iterrows():
@@ -223,7 +240,6 @@ def fillPrimaryEnergy():
                 ('{row['Unnamed: 0'][:4]}','Denmark','{row['Oil']}','{row['Coal']}','{row['Gas']}','{row['Hydroelectricity']}','{row['Nuclear']}','{row['Biomass and Waste']}','{row['Wind']}','{row['Fuel Ethanol']}','{row['Solar, Tide, Wave, Fuel Cell']}','{row['Geothermal']}','{row['Biodiesel']}')
         ''')
     for a, row in primary_energy_france.iterrows():
-        print(row)
         c.execute(f'''
                 insert into 'Primary Energies' (année, nomRégion, Oil, Coal, Gas, Hydroelectricity, Nuclear, 'Biomass and Waste',Wind,'Fuel Ethanol','Solar, Tide, Wave, Fuel Cell',Geothermal,Biodiesel)
                 values
@@ -239,7 +255,13 @@ def fillPrimaryEnergy():
         c.execute(f'''
                 insert into 'Primary Energies' (année, nomRégion, Oil, Coal, Gas, Hydroelectricity, Nuclear, 'Biomass and Waste',Wind,'Fuel Ethanol','Solar, Tide, Wave, Fuel Cell',Geothermal,Biodiesel)
                 values
-                ('{row['Unnamed: 0'][:4]}','United States','{row['Oil']}','{row['Coal']}','{row['Gas']}','{row['Hydroelectricity']},{row['Nuclear']}','{row['Biomass and Waste']}','{row['Wind']}','{row['Fuel Ethanol']}','{row['Solar, Tide, Wave, Fuel Cell']}','{row['Geothermal']}','{row['Biodiesel']}')
+                ('{row['Unnamed: 0'][:4]}','United States','{row['Oil']}','{row['Coal']}','{row['Gas']}','{row['Hydroelectricity']}','{row['Nuclear']}','{row['Biomass and Waste']}','{row['Wind']}','{row['Fuel Ethanol']}','{row['Solar, Tide, Wave, Fuel Cell']}','{row['Geothermal']}','{row['Biodiesel']}')
+        ''')
+    for a, row in primary_energy_germany.iterrows():
+        c.execute(f'''
+                insert into 'Primary Energies' (année, nomRégion, Oil, Coal, Gas, Hydroelectricity, Nuclear, 'Biomass and Waste',Wind,'Fuel Ethanol','Solar, Tide, Wave, Fuel Cell',Geothermal,Biodiesel)
+                values
+                ('{row['Unnamed: 0'][:4]}','Germany','{row['Oil']}','{row['Coal']}','{row['Gas']}','{row['Hydroelectricity']}','{row['Nuclear']}','{row['Biomass and Waste']}','{row['Wind']}','{row['Fuel Ethanol']}','{row['Solar, Tide, Wave, Fuel Cell']}','{row['Geothermal']}','{row['Biodiesel']}')
         ''')
 
 fillPIB()
