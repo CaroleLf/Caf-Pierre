@@ -7,10 +7,9 @@ c = conn.cursor()
 c.execute('''DROP TABLE IF EXISTS Région''')
 c.execute('''DROP TABLE IF EXISTS Habitants''')
 c.execute('''DROP TABLE IF EXISTS PIB''')
-c.execute('''DROP TABLE IF EXISTS Empreinte_Carbone''')
+c.execute('''DROP TABLE IF EXISTS 'Primary Energies' ''')
+c.execute('''DROP TABLE IF EXISTS 'Greenhouse Gas' ''')
 c.execute('''DROP TABLE IF EXISTS Activité''')
-c.execute('''DROP TABLE IF EXISTS Energie''')
-c.execute('''DROP TABLE IF EXISTS Effets''')
 
 c.execute('''
           CREATE TABLE "Région"(
@@ -50,13 +49,37 @@ CREATE TABLE "PIB"(
 
 
 c.execute('''
-CREATE TABLE "Empreinte_Carbone"(
+CREATE TABLE "Primary Energies"(
     "année" INT NOT NULL,
-    "idRégion" INT NOT NULL,
-    "produit" DECIMAL(8, 2) NULL,
-    PRIMARY KEY("année","idRégion"),
-    FOREIGN KEY("idRégion") REFERENCES "Région"("idRégion")
+    "nomRégion" NVARCHAR(255) NOT NULL,
+    "Oil" DECIMAL(8, 2),
+    "Coal" DECIMAL(8, 2),
+    "Gas" DECIMAL(8, 2),
+    "Hydroelectricity" DECIMAL(8, 2),
+    "Nuclear" DECIMAL(8, 2),
+    "Biomass and Waste" DECIMAL(8, 2),
+    "Wind" DECIMAL(8, 2),
+    "Fuel Ethanol" DECIMAL(8, 2),
+    "Solar, Tide, Wave, Fuel Cell" DECIMAL(8, 2),
+    "Geothermal" DECIMAL(8, 2),
+    "Biodiesel" DECIMAL(8, 2),
+    PRIMARY KEY("année","nomRégion"),
+    FOREIGN KEY("nomRégion") REFERENCES "Région"("nomRégion")
     );
+''')
+
+c.execute('''
+CREATE TABLE "Greenhouse Gas"(
+    "année" INT NOT NULL,
+    "nomRégion" NVARCHAR(255) NOT NULL,
+    "Energy" DECIMAL(8, 2),
+    "Agriculture" DECIMAL(8, 2),
+    "Industry and Construction" DECIMAL(8, 2),
+    "Waste" DECIMAL(8, 2),
+    "Other Sectors" DECIMAL(8, 2),
+    PRIMARY KEY("année","nomRégion"),
+    FOREIGN KEY("nomRégion") REFERENCES "Région"("nomRégion")
+);
 ''')
 
 
@@ -65,18 +88,6 @@ CREATE TABLE "Activité"(
     "nomActivité" NVARCHAR(255) NOT NULL,
     "empreinte" INT NOT NULL,
     PRIMARY KEY("nomActivité")
-);
-''')
-
-
-c.execute('''
-CREATE TABLE "Effets"(
-    "année" INT NOT NULL,
-    "idRégion" INT NOT NULL,
-    "changementTempérature" FLOAT NOT NULL,
-    "montéeEaux" FLOAT NOT NULL,
-    PRIMARY KEY("année","idRégion"),
-    FOREIGN KEY("idRégion") REFERENCES "Région"("idRégion")
 );
 ''')
 
