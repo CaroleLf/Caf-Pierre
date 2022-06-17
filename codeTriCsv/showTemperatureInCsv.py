@@ -11,36 +11,11 @@ geolocator = Nominatim(user_agent="geoapiExercises")
 countrys = ["France","Denmark","Germany","Italy","United States","China","India"]
 pd.set_option('mode.chained_assignment', None)
 
-
 locator = Nominatim(user_agent="myGeocoder")
 
-"""""
-def displayTownAndCountry(fileName):
-    df = pd.read_csv(fileName)
-    df = df.iloc[44466:] 
-    for i in df.index:
-        latitude = df.loc[i,"latitude"]
-        longitude = df.loc[i,"longitude"]
-        geolocator = Nominatim(user_agent="http")
-        string_value = str(latitude) + "," + str(longitude)
-        location = geolocator.reverse(string_value, exactly_one=True,language='en')
-        address = location.row['address']
-        city = address.get('city', '')
-        state = address.get('state', '')
-        country = address.get('country', '')
-        print(city, state, country)
-
-
-      
-        27.5 119.5
-
-
-
-"""
-def callCityStateCountry(FileName):
+def writeValueInCSVFile(FileName):
     df = pd.read_csv(FileName)
     allValues = []
-    df = df.iloc[41528:]
     for i in df.index:
         latitude = df.loc[i,"lat"]
         longitude = df.loc[i,"lon"]
@@ -62,11 +37,6 @@ def callCityStateCountry(FileName):
                             writer.writerow([latitude,longitude,country,continent_name,values,city])
 
     
-
-
-
-
-
 
 
 
