@@ -1,31 +1,16 @@
-
-
-# If you prefer to run the code online instead of on your computer click:
-# https://github.com/Coding-with-Adam/Dash-by-Plotly#execute-code-in-browser
-
-from curses import color_content
-import imp
-from dash import Dash, dcc, Output, Input, html  # pip install dash
-# pip install dash-bootstrap-components
-import dash_bootstrap_components as dbc
+from dash import Dash, dcc, html
 import plotly.express as px
-import pandas as pd                        # pip install pandas
+import pandas as pd                     
 import plotly.graph_objects as go
-import json
 import geopandas as gpd
 
-# incorporate data into app
-# Source - https://www.cdc.gov/nchs/pressroom/stats_of_the_states.htm
-df2 = pd.read_csv("finalValuesTemperature.csv")
 df = pd.read_csv("newNiveauMer.csv")
+df2 = pd.read_csv("finalValuesTemperature.csv")
+
 counties = gpd.read_file("custom.geo.json")
 
-# Build your components
 app = Dash(__name__)
 mytitle = dcc.Markdown(children='')
-
-
-
 
 
 
@@ -33,17 +18,6 @@ fig = px.choropleth_mapbox(df, geojson=counties, locations='pays', featureidkey=
                            color_continuous_scale="Viridis",mapbox_style="carto-positron",
                            
                            )
-
-""""
-
-fig = px.choropleth(data_frame=df, geojson=counties,
-                        locations = df.index,
-                        scope="world",
-                        height=600,
-                        color= "values",
-                        )
-                        
-"""
 
 
 fig2 = go.Figure(data=go.Scattergeo(
