@@ -5,7 +5,7 @@ import geopandas as gpd
 import csv
 import sqlite3
 from os import path
-conn = sqlite3.connect(path.dirname(__file__) + "/CoffeePierre.db")
+conn = sqlite3.connect(path.dirname(__file__).replace("/application","") + "/CoffeePierre.db")
 c = conn.cursor()
 
 #############################################################################################################################
@@ -13,12 +13,12 @@ queryPibPays = '''SELECT nomRégion as 'Country Name', PIB as '2020' FROM Régio
 dfPibPays = pd.read_sql(queryPibPays, conn)
 queryHabitantsPays = '''SELECT nomRégion as 'Country Name', nbHabitant as '2020' FROM Région join Habitants on Habitants.idRégion = Région.idRégion where année = '2020' '''
 dfPopulationPays = pd.read_sql(queryHabitantsPays, conn)
-dfEmpreinteCarbone = pd.read_csv("csv/empreinte_carbone.csv", usecols=['Country Name', '2014'])
-dfEmpreinteCarone30years = pd.read_csv("csv/empreinte_carbone.csv")
-dfSeaLevel = pd.read_csv("csv/NiveauMerUpdate.csv")
-dfTemperatureForecast = pd.read_csv("csv/AllTemperatureMean2041-2060Pays.csv")
-dfAverageTemperature = pd.read_csv("csv/AverageTemperature1941-1960.csv")
-counties = gpd.read_file("custom.geo.json")
+dfEmpreinteCarbone = pd.read_csv(path.dirname(__file__) + "/csv/empreinte_carbone.csv", usecols=['Country Name', '2014'])
+dfEmpreinteCarone30years = pd.read_csv(path.dirname(__file__) + "/csv/empreinte_carbone.csv")
+dfSeaLevel = pd.read_csv(path.dirname(__file__) + "/csv/NiveauMerUpdate.csv")
+dfTemperatureForecast = pd.read_csv(path.dirname(__file__) + "/csv/AllTemperatureMean2041-2060Pays.csv")
+dfAverageTemperature = pd.read_csv(path.dirname(__file__) + "/csv/AverageTemperature1941-1960.csv")
+counties = gpd.read_file(path.dirname(__file__) + "/custom.geo.json")
 #############################################################################################################################
 
 app = Dash(__name__, suppress_callback_exceptions=True)
