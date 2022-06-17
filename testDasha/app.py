@@ -6,11 +6,18 @@ import plotly.express as px
 import plotly.graph_objs as go
 import geopandas as gpd
 import csv
+import sqlite3
+from os import path
+conn = sqlite3.connect(path.dirname(__file__) + "/CoffeePierre.db")
+c = conn.cursor()
 
 #############################################################################################################################
-
-dfPibPays = pd.read_csv("pib.csv", usecols=['Country Name', '2020'])
-dfPopulationPays = pd.read_csv("pop_totale.csv", usecols=['Country Name', '2020'])
+queryPibPays = '''SELECT nomRégion as 'Country Name', PIB as '2020' FROM Région join PIB on PIB.idRégion = Région.idRégion where année = '2020' '''
+dfPibPays = pd.read_sql(queryPibPays, conn)
+#dfPibPays = pd.read_csv("pib.csv", usecols=['Country Name', '2020'])
+queryHabitantsPays = '''SELECT nomRégion as 'Country Name', nbHabitant as '2020' FROM Région join Habitants on Habitants.idRégion = Région.idRégion where année = '2020' '''
+dfPopulationPays = pd.read_sql(queryHabitantsPays, conn)
+#dfPopulationPays = pd.read_csv("pop_totale.csv", usecols=['Country Name', '2020'])
 dfEmpreinteCarbone = pd.read_csv("empreinte_carbone.csv", usecols=['Country Name', '2014'])
 dfEmpreinteCarone30years = pd.read_csv("empreinte_carbone.csv")
 dfSeaLevel = pd.read_csv("NiveauMerUpdate.csv")
@@ -20,46 +27,7 @@ counties = gpd.read_file("custom.geo.json")
 
 #############################################################################################################################
 
-dateVoulue = ["1986-01-01 00:00:00",
-"1987-01-01 00:00:00",
-"1988-01-01 00:00:00",
-"1989-01-01 00:00:00",
-"1990-01-01 00:00:00",
-"1991-01-01 00:00:00",
-"1992-01-01 00:00:00",
-"1993-01-01 00:00:00",
-"1994-01-01 00:00:00",
-"1995-01-01 00:00:00",
-"1996-01-01 00:00:00",
-"1997-01-01 00:00:00",
-"1998-01-01 00:00:00",
-"1999-01-01 00:00:00",
-"2000-01-01 00:00:00",
-"2001-01-01 00:00:00",
-"2002-01-01 00:00:00",
-"2003-01-01 00:00:00",
-"2004-01-01 00:00:00",
-"2005-01-01 00:00:00",
-"2006-01-01 00:00:00",
-"2007-01-01 00:00:00",
-"2008-01-01 00:00:00",
-"2009-01-01 00:00:00",
-"2010-01-01 00:00:00",
-"2011-01-01 00:00:00",
-"2012-01-01 00:00:00",
-"2013-01-01 00:00:00",
-"2014-01-01 00:00:00",
-"2015-01-01 00:00:00",
-"2016-01-01 00:00:00"
-]
-
-
-#############################################################################################################################
-
-
 app = Dash(__name__, suppress_callback_exceptions=True)
-
-
 
 app.layout = html.Div([
     dcc.Location(id='url', refresh=False),
@@ -111,29 +79,30 @@ country_layout = html.Div([
 # page primary-energy #
 #######################
 
-def setDateVoulue(df):
-    return df[df["Unnamed: 0"].isin(dateVoulue)]
+queryPenergyFrance = '''SELECT année as 'Unnamed: 0', Oil, Coal, Gas, Hydroelectricity, Nuclear, "Biomass and Waste", Wind, "Fuel Ethanol",  "Solar, Tide, Wave, Fuel Cell", Geothermal, Biodiesel FROM 'Primary Energies' where nomRégion = 'France' and année > 1985 and année <2017  '''
+penergyfrance = pd.read_sql(queryPenergyFrance, conn)
 
-penergyfrance = pd.read_csv("primary_energy/primary_energy_france.csv", sep=';')
-penergyfrance = setDateVoulue(penergyfrance)
 
-penergychina = pd.read_csv("primary_energy/primary_energy_china.csv", sep=';')
-penergychina = setDateVoulue(penergychina)
+queryPenergyChina = '''SELECT année as 'Unnamed: 0', Oil, Coal, Gas, Hydroelectricity, Nuclear, "Biomass and Waste", Wind, "Fuel Ethanol",  "Solar, Tide, Wave, Fuel Cell", Geothermal, Biodiesel FROM 'Primary Energies' where nomRégion = 'China' and année > 1985 and année <2017  '''
+penergychina = pd.read_sql(queryPenergyChina, conn)
 
-penergycoteivoire = pd.read_csv("primary_energy/primary_energy_coteivoire.csv", sep=';')
-penergycoteivoire = setDateVoulue(penergycoteivoire)
+queryPenergycoteivoire = '''SELECT année as 'Unnamed: 0', Oil, Coal, Gas, Hydroelectricity, Nuclear, "Biomass and Waste", Wind, "Fuel Ethanol",  "Solar, Tide, Wave, Fuel Cell", Geothermal, Biodiesel FROM 'Primary Energies' where nomRégion = 'Cote d''Ivoire' and année > 1985 and année <2017  '''
+penergycoteivoire = pd.read_sql(queryPenergycoteivoire, conn)
 
-penergyindia = pd.read_csv("primary_energy/primary_energy_india.csv", sep=';')
-penergyindia = setDateVoulue(penergyindia)
 
-penergydenmark = pd.read_csv("primary_energy/primary_energy_denmark.csv", sep=';')
-penergydenmark = setDateVoulue(penergydenmark)
+queryPenergyIndia = '''SELECT année as 'Unnamed: 0', Oil, Coal, Gas, Hydroelectricity, Nuclear, "Biomass and Waste", Wind, "Fuel Ethanol",  "Solar, Tide, Wave, Fuel Cell", Geothermal, Biodiesel FROM 'Primary Energies' where nomRégion = 'India' and année > 1985 and année <2017  '''
+penergyindia = pd.read_sql(queryPenergyIndia, conn)
 
-penergyunitedstates = pd.read_csv("primary_energy/primary_energy_unitedstates.csv", sep=';')
-penergyunitedstates = setDateVoulue(penergyunitedstates)
+queryPenergyDenmark = '''SELECT année as 'Unnamed: 0', Oil, Coal, Gas, Hydroelectricity, Nuclear, "Biomass and Waste", Wind, "Fuel Ethanol",  "Solar, Tide, Wave, Fuel Cell", Geothermal, Biodiesel FROM 'Primary Energies' where nomRégion = 'Denmark' and année > 1985 and année <2017  '''
+penergydenmark = pd.read_sql(queryPenergyDenmark, conn)
 
-penergygermany = pd.read_csv("primary_energy/primary_energy_germany.csv", sep=';')
-penergygermany = setDateVoulue(penergygermany)
+
+queryPenergyUnitedstates = '''SELECT année as 'Unnamed: 0', Oil, Coal, Gas, Hydroelectricity, Nuclear, "Biomass and Waste", Wind, "Fuel Ethanol",  "Solar, Tide, Wave, Fuel Cell", Geothermal, Biodiesel FROM 'Primary Energies' where nomRégion = 'United States' and année > 1985 and année <2017  '''
+penergyunitedstates = pd.read_sql(queryPenergyUnitedstates, conn)
+
+
+queryPenergyGermany = '''SELECT année as 'Unnamed: 0', Oil, Coal, Gas, Hydroelectricity, Nuclear, "Biomass and Waste", Wind, "Fuel Ethanol",  "Solar, Tide, Wave, Fuel Cell", Geothermal, Biodiesel FROM 'Primary Energies' where nomRégion = 'Germany' and année > 1985 and année <2017  '''
+penergygermany = pd.read_sql(queryPenergyGermany, conn)
 
 primary_energy_layout = html.Div([
     dcc.Link('Go back to Country', href='/country'),
@@ -186,26 +155,27 @@ def retGraphPrimaryEnergy(value):
 ############
 # page ges #
 ############
-ghousegas_france = pd.read_csv("greenhouse_gas/greenhouse_gas_france.csv", sep=';')
-ghousegas_france = setDateVoulue(ghousegas_france)
+queryGhouseGasFrance = '''SELECT année as 'Unnamed: 0', Energy, Agriculture, "Industry and Construction", Waste, "Other Sectors" FROM 'Greenhouse Gas' where nomRégion = 'France' and année > 1985 and année <2017  '''
+ghousegas_france = pd.read_sql(queryGhouseGasFrance, conn)
 
-ghousegas_coteivoire = pd.read_csv("greenhouse_gas/greenhouse_gas_coteivoire.csv", sep=';')
-ghousegas_coteivoire = setDateVoulue(ghousegas_coteivoire)
+queryGhouseGasCoteivoire = '''SELECT année as 'Unnamed: 0', Energy, Agriculture, "Industry and Construction", Waste, "Other Sectors" FROM 'Greenhouse Gas' where nomRégion = 'Cote d''Ivoire' and année > 1985 and année <2017  '''
+ghousegas_coteivoire = pd.read_sql(queryGhouseGasCoteivoire, conn)
 
-ghousegas_denmark = pd.read_csv("greenhouse_gas/greenhouse_gas_denmark.csv", sep=';')
-ghousegas_denmark = setDateVoulue(ghousegas_denmark)
+queryGhouseDenmark = '''SELECT année as 'Unnamed: 0', Energy, Agriculture, "Industry and Construction", Waste, "Other Sectors" FROM 'Greenhouse Gas' where nomRégion = 'Denmark' and année > 1985 and année <2017  '''
+ghousegas_denmark = pd.read_sql(queryGhouseDenmark, conn)
 
-ghousegas_china = pd.read_csv("greenhouse_gas/greenhouse_gas_china.csv", sep=';')
-ghousegas_china = setDateVoulue(ghousegas_china)
+queryGhouseGasChina = '''SELECT année as 'Unnamed: 0', Energy, Agriculture, "Industry and Construction", Waste, "Other Sectors" FROM 'Greenhouse Gas' where nomRégion = 'China' and année > 1985 and année <2017  '''
+ghousegas_china = pd.read_sql(queryGhouseGasChina, conn)
 
-ghousegas_inde = pd.read_csv("greenhouse_gas/greenhouse_gas_inde.csv", sep=';')
-ghousegas_inde = setDateVoulue(ghousegas_inde)
+queryGhouseGasInde = '''SELECT année as 'Unnamed: 0', Energy, Agriculture, "Industry and Construction", Waste, "Other Sectors" FROM 'Greenhouse Gas' where nomRégion = 'India' and année > 1985 and année <2017  '''
+ghousegas_inde = pd.read_sql(queryGhouseGasInde, conn)
 
-ghousegas_unitedstates = pd.read_csv("greenhouse_gas/greenhouse_gas_unitedstate.csv", sep=';')
-ghousegas_unitedstates = setDateVoulue(ghousegas_unitedstates)
+queryGhouseGasUnitedStates = '''SELECT année as 'Unnamed: 0', Energy, Agriculture, "Industry and Construction", Waste, "Other Sectors" FROM 'Greenhouse Gas' where nomRégion = 'United States' and année > 1985 and année <2017  '''
+ghousegas_unitedstates = pd.read_sql(queryGhouseGasUnitedStates, conn)
 
-ghousegas_germany = pd.read_csv("greenhouse_gas/greenhouse_gas_germany.csv", sep=';')
-ghousegas_germany = setDateVoulue(ghousegas_germany)
+
+queryGhouseGasGermany = '''SELECT année as 'Unnamed: 0', Energy, Agriculture, "Industry and Construction", Waste, "Other Sectors" FROM 'Greenhouse Gas' where nomRégion = 'Germany' and année > 1985 and année <2017  '''
+ghousegas_germany = pd.read_sql(queryGhouseGasGermany, conn)
 
 ges_layout = html.Div([
     dcc.Link('Go back to Country', href='/country'),
@@ -274,7 +244,7 @@ def displayGDPandPopulation(country):
         return html.Div([
             html.H3(country),
             html.H4("GDP : " + str(dfPibPays.loc[dfPibPays["Country Name"] == country, "2020"].values[0]) + "$"),
-            html.H4("Population : " + str(dfPopulationPays.loc[dfPopulationPays["Country Name"] == country, "2020"].values[0]) + " people"),
+            html.H4("Population : " + str(dfPopulationPays.loc[dfPopulationPays["Country Name"] == country, "2020"].values[0]) + " inhabitants"),
         ])
 
 
@@ -571,7 +541,8 @@ temperature_layout = html.Div([
 #################
 # page activity #
 #################
-dfActivityFootprint=pd.read_csv("ActiviteAvecLePlusDempreinteCarbonesur1an.csv")
+queryActivityFootprint = ''' SELECT nomActivité as 'Sector', empreinte as 'Empreinte carbone en MtCO2' FROM Activité '''
+dfActivityFootprint = pd.read_sql(queryActivityFootprint, conn)
 
 fig =px.pie(dfActivityFootprint, values='Empreinte carbone en MtCO2', names='Sector', title='Carbone footprint by sector')
 
