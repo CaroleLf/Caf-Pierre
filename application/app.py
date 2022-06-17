@@ -7,6 +7,8 @@ import sqlite3
 from os import path
 conn = sqlite3.connect(path.dirname(__file__).replace("/application","") + "/CoffeePierre.db")
 c = conn.cursor()
+import plotly.graph_objects as go
+
 
 #############################################################################################################################
 queryPibPays = '''SELECT nomRégion as 'Country Name', PIB as '2020' FROM Région join PIB on PIB.idRégion = Région.idRégion where année = '2020' '''
@@ -16,8 +18,10 @@ dfPopulationPays = pd.read_sql(queryHabitantsPays, conn)
 dfEmpreinteCarbone = pd.read_csv(path.dirname(__file__) + "/csv/empreinte_carbone.csv", usecols=['Country Name', '2014'])
 dfEmpreinteCarone30years = pd.read_csv(path.dirname(__file__) + "/csv/empreinte_carbone.csv")
 dfSeaLevel = pd.read_csv(path.dirname(__file__) + "/csv/NiveauMerUpdate.csv")
+dfSea = pd.read_csv(path.dirname(__file__) + "/csv/niveauMerTest.csv")
 dfTemperatureForecast = pd.read_csv(path.dirname(__file__) + "/csv/AllTemperatureMean2041-2060Pays.csv")
 dfAverageTemperature = pd.read_csv(path.dirname(__file__) + "/csv/AverageTemperature1941-1960.csv")
+dfTemperature = pd.read_csv(path.dirname(__file__)+ "/csv/AllTemperatureMean2041-2060.csv")
 counties = gpd.read_file(path.dirname(__file__) + "/custom.geo.json")
 #############################################################################################################################
 
@@ -471,6 +475,15 @@ def map_radios(value):
 ##################
 # page sea level #
 ##################
+figSeaLevel = go.Figure(data=go.Scattergeo(
+    lon=dfSea['lon'],
+    lat=dfSea['lat'],
+    mode='markers',
+    marker_color=dfSea['total']
+))
+
+
+
 fig = px.choropleth_mapbox(dfSeaLevel, geojson=counties, locations='pays', featureidkey="properties.iso_a3", color='total',
                            color_continuous_scale="Viridis",mapbox_style="carto-positron", zoom = 0,width=1000,height=1000
                            )
@@ -488,6 +501,16 @@ sea_level_layout = html.Div([
         figure=fig,
         style = {'margin-left' : '22%'}
     ),
+    html.H1(children='Map of rising waters '),
+    html.H4(children = 'Zoom in and out with your mouse wheel'),
+    html.Div(children='''
+        This data was provided by the UPCC.
+    '''),
+    dcc.Graph(
+        id='Map ocean',
+        figure=figSeaLevel,
+        style = {'margin-left' : '22%'}
+    ),
 ], style = {'text-align': 'center'})
 
 ####################
@@ -498,6 +521,14 @@ fig2 = px.bar(dfAverageTemperature, x='country', y='values', color='values', bar
 fig3 = px.choropleth_mapbox(dfTemperatureForecast, geojson=counties, locations='pays', featureidkey="properties.iso_a3", color='total',
                            color_continuous_scale="Viridis",mapbox_style="carto-positron", zoom = 0,width=1000,height=1000
                            )
+
+fig4 = go.Figure(data=go.Scattergeo(
+    lon=dfTemperature['longitude'],
+    lat=dfTemperature['latitude'],
+    mode='markers',
+    marker_color=dfTemperature['tas_anom']
+))
+
 temperature_layout = html.Div([
     dcc.Link('Go back to Map', href='/map'),
     html.Br(),
@@ -511,14 +542,28 @@ temperature_layout = html.Div([
         figure=fig3,
         style = {'margin-left' : '22%'}
     ),
-    html.H2(children='Temperature increase map from 2041 to 2060 '),
+    html.H2(children='Average temperature increase map from 2041 to 2060 '),
     html.Div(children='''
         This data was provided by UPCC.
     '''),
     
+    
     dcc.Graph(
         id='TemperatureCountry',
         figure=fig2
+    ),
+    html.H2(children='Temperature increase map from 2041 to 2060 '),
+    html.Div(children='''
+        This data was provided by UPCC.
+    '''),
+    html.H2(children='Legende of the color scale'),
+    html.Div(children='''
+        More the color is red, more the temperature is rising.
+    '''),
+    
+    dcc.Graph(
+        id='TemperatureCountry',
+        figure=fig4
     )
 ], style = {'text-align': 'center'})
 
